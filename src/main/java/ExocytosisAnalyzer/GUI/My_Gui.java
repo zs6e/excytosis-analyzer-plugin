@@ -7,6 +7,7 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 
 import java.awt.Panel;
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.TextField;
 import java.awt.event.ActionEvent;
@@ -649,7 +650,6 @@ public class My_Gui {
 				        		       v_paras.Radius+10);
 	    	}
 	    	output_ips.show();
-
 	    }
 		if (v_paras.showLowpass) {
 			ImagePlus lowPassImage = new ImagePlus();
@@ -846,6 +846,27 @@ public class My_Gui {
 		resultWindows.add(resutWinButtonPanel,BorderLayout.PAGE_END);
 		resultWindows.pack();
 		resultWindows.setVisible(true);
+		
+		//mouse click event for result film
+    	output_ips.getCanvas().addMouseListener(new MouseAdapter() {
+    		public void mouseReleased(MouseEvent e) {
+    			 if (e.getClickCount() == 2){
+    				Point clickPoint = ((ImageCanvas) e.getSource()).getCursorLoc();
+    				int currentSlice = output_ips.getSlice();
+    				
+    				for (int i = 0; i < detected_secretion.size(); i++) {
+    					if  (	currentSlice >= detected_secretion.elementAt(i).start_slice && 
+    							currentSlice <=  detected_secretion.elementAt(i).fin_slice &&
+    							Math.abs(clickPoint.x - detected_secretion.elementAt(i).start_x) <= 4* v_paras.Radius &&
+    							Math.abs(clickPoint.y - detected_secretion.elementAt(i).start_y) <= 4* v_paras.Radius) {
+    						secretionEventList.changeSelection(i, 0, false, false);
+    						viewCruvePlot(detected_secretion.elementAt(i));
+    						
+    					};
+    				}
+    			 }
+    		}		
+    	});
 	}
 	private void addSecretionEvent(Vector<Secretion> detected_secretion) { //from a ROI to "input secretion"
 	

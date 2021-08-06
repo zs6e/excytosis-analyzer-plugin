@@ -4,7 +4,6 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
 		http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-
 	<parent>
 		<groupId>org.scijava</groupId>
 		<artifactId>pom-scijava</artifactId>
@@ -13,15 +12,15 @@
 	</parent>
 
 	<groupId>imagej</groupId>
-	<artifactId>excytosis-analyzer-plugin</artifactId>
-	<version>0.7.1-ImageJ2</version>
+	<artifactId>ExocytosisAnalyzer</artifactId>
+	<version>V1.01</version>
 
-	<name>ImageJ excytosis-analyzer</name>
+	<name>ImageJ ExcytosisAnalyzer</name>
 	<description>a ImageJ commands.</description>
 	<url>https://github.com/zs6e/excytosis-analyzer-plugin</url>
-	<inceptionYear>2015</inceptionYear>
+	<inceptionYear>2021</inceptionYear>
 	<organization>
-		<name>[MY-ORGANIZATION-NAME]</name>
+		<name>SFMS</name>
 		<url>[MY-ORGANIZATION-WEB-SITE]</url>
 	</organization>
 	<licenses>
@@ -60,17 +59,18 @@
 	</scm>
 	<issueManagement>
 		<system>GitHub Issues</system>
-		<url>http://github.com/[MY-ORG]/[MY-REPO]/issues</url>
+		<url>https://github.com/scijava/pom-scijava/issues</url>
 	</issueManagement>
 	<ciManagement>
 		<system>None</system>
 	</ciManagement>
 
 	<properties>
-		<main-class>CommandWithPreview</main-class>
+		<main-class>Exocytosis_analyzer</main-class>
 		<license.licenseName>cc0</license.licenseName>
 		<license.copyrightOwners>N/A</license.copyrightOwners>
-		<license.projectName>ImageJ software for multidimensional image processing and analysis.</license.projectName>
+		<license.projectName>ImageJ software for multidimensional image
+			processing and analysis.</license.projectName>
 	</properties>
 
 	<repositories>
@@ -78,18 +78,24 @@
 			<id>imagej.public</id>
 			<url>http://maven.imagej.net/content/groups/public</url>
 		</repository>
+		<repository>
+			<id>scijava.public</id>
+			<url>https://maven.scijava.org/content/groups/public</url>
+		</repository>
 	</repositories>
-
 	<dependencies>
 		<dependency>
 			<groupId>net.imagej</groupId>
 			<artifactId>imagej</artifactId>
 		</dependency>
-
-		<!-- NB: For ImageJ 1.x support. -->
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-math3</artifactId>
+		</dependency>
 		<dependency>
 			<groupId>net.imagej</groupId>
 			<artifactId>ij</artifactId>
+			<version>1.53j</version>
 		</dependency>
 		<dependency>
 			<groupId>net.imagej</groupId>

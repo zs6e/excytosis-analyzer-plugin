@@ -116,7 +116,7 @@ public class GUIWizard extends JFrame {
 				if (preview_stack.isClosed())
 					preview_stack = new ResultStackWindow(imp.duplicate());
 
-				preview_stack.setTitle("Preview detected secretion");
+				preview_stack.setTitle("Secretion Preview");
 				new SecretionDetectorThread(detected_events, detected_secretions).start();
 				previewButton.setEnabled(false);
 				nextButton.setEnabled(false);
@@ -132,7 +132,7 @@ public class GUIWizard extends JFrame {
 					preview_stack = new ResultStackWindow(imp.duplicate());
 
 				// preview_imp = imp.duplicate();
-				preview_stack.setTitle("Preview detected secretion");
+				preview_stack.setTitle("Secretion Preview");
 				new SecretionDetectorThread(detected_events, detected_secretions).start();
 				previewButton.setEnabled(false);
 				nextButton.setEnabled(false);
@@ -147,7 +147,7 @@ public class GUIWizard extends JFrame {
 				if (preview_stack.isClosed())
 					preview_stack = new ResultStackWindow(imp.duplicate());
 
-				preview_stack.setTitle("Preview tracking");
+				preview_stack.setTitle("Tracking Preview");
 				new trackingThread(detected_events, true).start();
 				previewButton.setEnabled(false);
 				nextButton.setEnabled(false);
@@ -161,7 +161,7 @@ public class GUIWizard extends JFrame {
 				if (preview_stack.isClosed())
 					preview_stack = new ResultStackWindow(imp.duplicate());
 
-				preview_stack.setTitle("Preview tracking");
+				preview_stack.setTitle("Tracking Preview");
 				new trackingThread(detected_events, false).start();
 				previewButton.removeActionListener(previewTracking);
 				nextButton.removeActionListener(Tracking);
@@ -174,8 +174,12 @@ public class GUIWizard extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				ImagePlus preview_imp = new ImagePlus("", imp.getProcessor());
 				ResultStackWindow preview_win = new ResultStackWindow(preview_imp);
-				preview_win.setTitle("Preview deteted vesicle");
-				
+				if (parameters.WaveletFilter) {
+					preview_win.setTitle("Detected spots : Wavelet SNR = " + String.valueOf(parameters.SNR_Vesicle) + " σ" );
+				}
+				else {
+					preview_win.setTitle("Detected spots : Local maxima SNR = " + String.valueOf(parameters.SNR_Vesicle) + " σ" );
+				}
 				if (imp.getRoi() == null)
 					vesicleWindows.setRoi(new Roi(0, 0, image_width, image_height));
 				else
@@ -196,7 +200,8 @@ public class GUIWizard extends JFrame {
 				new VesicleDetectThread().start();
 				previewButton.setEnabled(false);
 				nextButton.setEnabled(false);
-				photobleachingCorrection.setEnabled(false);
+				photobleachingCorrection.setVisible(false);
+				photobleachingCorrectionLabel.setVisible(false);
 			}
 		};
 		
@@ -206,7 +211,7 @@ public class GUIWizard extends JFrame {
 		JPanel bouttonPanel = new JPanel();
 		
 		previewButton = new JButton("Preview");
-		nextButton = new JButton("Start");
+		nextButton = new JButton("Run");
 		
 		previewButton.addActionListener(previewVesicle);
 		nextButton.addActionListener(detecteVesicle);
@@ -282,7 +287,7 @@ public class GUIWizard extends JFrame {
 		}
 	}
 
-	class VesicleDetectThread extends Thread {
+	private class VesicleDetectThread extends Thread {
 
 		private MicroWaveletFilter waveletFilter;
 		private LocalMaximaDetector myDetector;
@@ -358,11 +363,11 @@ public class GUIWizard extends JFrame {
 				cardPanel.add(trackingWindows);
 				card.next(cardPanel);
 				preview_stack = new ResultStackWindow(imp.duplicate());
-				preview_stack.setTitle("Preview deteted vesicle");
+				preview_stack.setTitle("Detected spots");
 				preview_stack.setLabels3(elements);
 				nextButton.addActionListener(Tracking);
 			} else {
-				IJ.showMessage("No detected");
+				IJ.showMessage("No event detected");
 			}
 			nextButton.setEnabled(true);
 			previewButton.setEnabled(true);
@@ -370,7 +375,7 @@ public class GUIWizard extends JFrame {
 		}
 	}
 
-	public class trackingThread extends Thread {
+	private class trackingThread extends Thread {
 		private final int search_radius, TemporalSearchDepth, minimalEventSize;
 		private Vector<Secretion> _detected_events;
 		boolean preview;
@@ -545,20 +550,30 @@ public class GUIWizard extends JFrame {
 				}
 
 			} else {
-				IJ.showMessage("No detected");
+				IJ.showMessage("No event detected");
 			}
 			if (parameters.showlist) {
 				TrackingTableWin tracking_results_win = new TrackingTableWin(imp, preview_stack,_detected_events, parameters);
 				tracking_results_win.setVisible(true);
 			}
 
-			previewButton.setEnabled(true);
-			nextButton.setEnabled(true);
+			if (preview) {
+				previewButton.setEnabled(true);
+				nextButton.setEnabled(true);
+				
+			}
+			else {
+				previewButton.setVisible(false);
+				nextButton.setEnabled(true);
+				nextButton.setText("Run");
+
+				
+			}
 
 		}
 	}
 
-	public class SecretionDetectorThread extends Thread {
+	private class SecretionDetectorThread extends Thread {
 
 		private int min_points_num;
 		private int spot_radius;
@@ -741,7 +756,7 @@ public class GUIWizard extends JFrame {
 				preview_stack.setLabels(Vesicles);
 				preview_stack.setVisible(true);
 			} else {
-				IJ.showMessage("No detected");
+				IJ.showMessage("No event detected");
 			}
 			previewButton.setEnabled(true);
 			nextButton.setEnabled(true);
@@ -749,7 +764,7 @@ public class GUIWizard extends JFrame {
 		}
 	}
 
-	public class identifyVesicleWithGaussThread extends Thread {
+	private class identifyVesicleWithGaussThread extends Thread {
 		private final Vector<Vesicle> in;
 		private final AtomicInteger atomic_i;
 
@@ -768,11 +783,11 @@ public class GUIWizard extends JFrame {
 		}
 	}
 	
-	public void BleachingCorrection() {
+	private void BleachingCorrection() {
 		PhotolechingCorrection.MeshBleachingCorrection(imp, imp.getRoi());
 		imp.updateAndDraw();
 	}
-	public void RestoreImage() {
+	private void RestoreImage() {
 		imp.setImage(origin.duplicate()); 
 		imp.updateAndDraw();
 	}

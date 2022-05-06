@@ -30,7 +30,7 @@ public class SaveUtils {
 				" Ref", // 1
 				"Property", // 2
 				"Begin Frame", // 3
-				"Duration", // 4
+				"End frame", // 4
 				"Peak Frame", // 5
 				"Position (x)",
 				"Position (y)", // 6

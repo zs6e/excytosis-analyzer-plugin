@@ -5,6 +5,8 @@ import java.awt.FlowLayout;
 import java.awt.Panel;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -78,19 +80,19 @@ public class SecretionParametresWindows extends JPanel {
 
 		image = imp;
 
-		useMinimalPointsForFitter = new JCheckBox("", true);
-		useExpandFrames = new JCheckBox("", true);
+		useMinimalPointsForFitter = new JCheckBox("", parameters.useMinimalPointsForFitter);
+		useExpandFrames = new JCheckBox("", parameters.useExpandFrames);
 
-		useMaxTauFrames = new JCheckBox("", false);
-		useMinTauFrames = new JCheckBox("", false);
-		useMaxRadius = new JCheckBox("", false);
-		useMinRadius = new JCheckBox("", false);
-		useMaxDisplacement = new JCheckBox("", false);
+		useMaxTauFrames = new JCheckBox("", parameters.useMaxTauFrames);
+		useMinTauFrames = new JCheckBox("", parameters.useMinTauFrames);
+		useMaxRadius = new JCheckBox("", parameters.useMaxRadius);
+		useMinRadius = new JCheckBox("", parameters.useMinRadius);
+		useMaxDisplacement = new JCheckBox("", parameters.useMaxDisplacement);
 
-		useMinDecayFitterR2 = new JCheckBox("", true);
-		useMinSNR = new JCheckBox("", true);
+		useMinDecayFitterR2 = new JCheckBox("", parameters.useMinDecayFitterR2);
+		useMinSNR = new JCheckBox("", parameters.useMinSNR);
 
-		useGaussienfitter2DR2 = new JCheckBox("", true);
+		useGaussienfitter2DR2 = new JCheckBox("", parameters.useGaussienfitter2DR2);
 
 		minimalPointsForFitterField = new JTextField(String.valueOf(parameters.minimalPointsForFitter), 5);
 		expandFramesField_L = new JTextField(String.valueOf(parameters.expand_frames_L), 5);
@@ -298,7 +300,7 @@ public class SecretionParametresWindows extends JPanel {
 		JLabel MaxDisplacementLabel = new JLabel(" pixels");
 		JLabel MinR2Label = new JLabel(" ");
 		JLabel MinGaussR2Label = new JLabel(" ");
-		JLabel MinSNRLabel = new JLabel(" σ (MAD)");
+		JLabel MinSNRLabel = new JLabel(" ");
 
 		Panel ParametresPanel1 = new Panel();
 		ParametresPanel1.setLayout(new MigLayout("", "[][][][]", "[][]"));
@@ -354,6 +356,22 @@ public class SecretionParametresWindows extends JPanel {
 		ParametresPanel1.add(gaussienfitterR2Field, "cell 2 10");
 		ParametresPanel1.add(MinGaussR2Label, "cell 3 10");
 
+		minimalPointsForFitterField.addKeyListener(new KeyListener() {
+			@Override
+			public void keyTyped(KeyEvent e) {
+
+		        char ch = e.getKeyChar(); 
+		        if(!(ch >= '1' && ch <= '9') ) {
+		            e.consume();
+		        } 
+			}
+			@Override
+			public void keyPressed(KeyEvent e) {
+			}
+			@Override
+			public void keyReleased(KeyEvent e) {
+			}
+		});
 		minimalPointsForFitterField.getDocument().addDocumentListener(new DocumentListener() {
 			@Override
 			public void changedUpdate(DocumentEvent e) {
@@ -380,7 +398,21 @@ public class SecretionParametresWindows extends JPanel {
 
 			}
 		});
-
+		expandFramesField_L.addKeyListener(new KeyListener() {
+			@Override
+			public void keyTyped(KeyEvent e) {
+		        char ch = e.getKeyChar(); 
+		        if(!(ch >= '0' && ch <= '9') ) {
+		            e.consume();
+		        }
+			}
+			@Override
+			public void keyPressed(KeyEvent e) {
+			}
+			@Override
+			public void keyReleased(KeyEvent e) {
+			}
+		});
 		expandFramesField_L.getDocument().addDocumentListener(new DocumentListener() {
 			@Override
 			public void changedUpdate(DocumentEvent e) {
@@ -407,7 +439,22 @@ public class SecretionParametresWindows extends JPanel {
 
 			}
 		});
+		expandFramesField_R.addKeyListener(new KeyListener() {
+			@Override
+			public void keyTyped(KeyEvent e) {
 
+		        char ch = e.getKeyChar(); 
+		        if(!(ch >= '0' && ch <= '9') ) {
+		            e.consume();
+		        } 
+			}
+			@Override
+			public void keyPressed(KeyEvent e) {
+			}
+			@Override
+			public void keyReleased(KeyEvent e) {
+			}
+		});
 		expandFramesField_R.getDocument().addDocumentListener(new DocumentListener() {
 			@Override
 			public void changedUpdate(DocumentEvent e) {
@@ -434,7 +481,28 @@ public class SecretionParametresWindows extends JPanel {
 
 			}
 		});
-
+		MinSNRField.addKeyListener(new KeyListener() {
+			@Override
+			public void keyTyped(KeyEvent e) {
+				String text = MinSNRField.getText(); 
+		        char ch = e.getKeyChar(); 
+		        if(!(ch >= '0' && ch <= '9') && ch != '.' && ch != ',') {
+		            e.consume();
+		        } else if("".equals(text) && ch == '.' && ch != ',') {   
+		            e.consume();
+		        } else if(text.contains(".") || text.contains(",") ){
+		            if(ch == '.'||ch == ',' ) {
+		                e.consume();
+		            }
+		        }
+			}
+			@Override
+			public void keyPressed(KeyEvent e) {
+			}
+			@Override
+			public void keyReleased(KeyEvent e) {
+			}
+		});
 		MinSNRField.getDocument().addDocumentListener(new DocumentListener() {
 			@Override
 			public void changedUpdate(DocumentEvent e) {
@@ -461,7 +529,28 @@ public class SecretionParametresWindows extends JPanel {
 
 			}
 		});
-
+		MaxTauFramesField.addKeyListener(new KeyListener() {
+			@Override
+			public void keyTyped(KeyEvent e) {
+				String text = MaxTauFramesField.getText(); 
+		        char ch = e.getKeyChar(); 
+		        if(!(ch >= '0' && ch <= '9') && ch != '.' && ch != ',') {
+		            e.consume();
+		        } else if("".equals(text) && ch == '.' && ch != ',') {   
+		            e.consume();
+		        } else if(text.contains(".") || text.contains(",") ){
+		            if(ch == '.'||ch == ',' ) {
+		                e.consume();
+		            }
+		        }
+			}
+			@Override
+			public void keyPressed(KeyEvent e) {
+			}
+			@Override
+			public void keyReleased(KeyEvent e) {
+			}
+		});
 		MaxTauFramesField.getDocument().addDocumentListener(new DocumentListener() {
 			@Override
 			public void changedUpdate(DocumentEvent e) {
@@ -493,7 +582,28 @@ public class SecretionParametresWindows extends JPanel {
 
 			}
 		});
-
+		MinTauFramesField.addKeyListener(new KeyListener() {
+			@Override
+			public void keyTyped(KeyEvent e) {
+				String text = MinTauFramesField.getText(); 
+		        char ch = e.getKeyChar(); 
+		        if(!(ch >= '0' && ch <= '9') && ch != '.' && ch != ',') {
+		            e.consume();
+		        } else if("".equals(text) && ch == '.' && ch != ',') {   
+		            e.consume();
+		        } else if(text.contains(".") || text.contains(",") ){
+		            if(ch == '.'||ch == ',' ) {
+		                e.consume();
+		            }
+		        }
+			}
+			@Override
+			public void keyPressed(KeyEvent e) {
+			}
+			@Override
+			public void keyReleased(KeyEvent e) {
+			}
+		});
 		MinTauFramesField.getDocument().addDocumentListener(new DocumentListener() {
 			@Override
 			public void changedUpdate(DocumentEvent e) {
@@ -525,7 +635,28 @@ public class SecretionParametresWindows extends JPanel {
 
 			}
 		});
-
+		MaxRadiusField.addKeyListener(new KeyListener() {
+			@Override
+			public void keyTyped(KeyEvent e) {
+				String text = MaxRadiusField.getText(); 
+		        char ch = e.getKeyChar(); 
+		        if(!(ch >= '0' && ch <= '9') && ch != '.' && ch != ',') {
+		            e.consume();
+		        } else if("".equals(text) && ch == '.' && ch != ',') {   
+		            e.consume();
+		        } else if(text.contains(".") || text.contains(",") ){
+		            if(ch == '.'||ch == ',' ) {
+		                e.consume();
+		            }
+		        }
+			}
+			@Override
+			public void keyPressed(KeyEvent e) {
+			}
+			@Override
+			public void keyReleased(KeyEvent e) {
+			}
+		});
 		MaxRadiusField.getDocument().addDocumentListener(new DocumentListener() {
 			@Override
 			public void changedUpdate(DocumentEvent e) {
@@ -557,7 +688,28 @@ public class SecretionParametresWindows extends JPanel {
 
 			}
 		});
-
+		MinRadiusField.addKeyListener(new KeyListener() {
+			@Override
+			public void keyTyped(KeyEvent e) {
+				String text = MinRadiusField.getText(); 
+		        char ch = e.getKeyChar(); 
+		        if(!(ch >= '0' && ch <= '9') && ch != '.' && ch != ',') {
+		            e.consume();
+		        } else if("".equals(text) && ch == '.' && ch != ',') {   
+		            e.consume();
+		        } else if(text.contains(".") || text.contains(",") ){
+		            if(ch == '.'||ch == ',' ) {
+		                e.consume();
+		            }
+		        }
+			}
+			@Override
+			public void keyPressed(KeyEvent e) {
+			}
+			@Override
+			public void keyReleased(KeyEvent e) {
+			}
+		});
 		MinRadiusField.getDocument().addDocumentListener(new DocumentListener() {
 			@Override
 			public void changedUpdate(DocumentEvent e) {
@@ -589,6 +741,28 @@ public class SecretionParametresWindows extends JPanel {
 
 			}
 		});
+		MaxDisplacementField.addKeyListener(new KeyListener() {
+			@Override
+			public void keyTyped(KeyEvent e) {
+				String text = MaxDisplacementField.getText(); 
+		        char ch = e.getKeyChar(); 
+		        if(!(ch >= '0' && ch <= '9') && ch != '.' && ch != ',') {
+		            e.consume();
+		        } else if("".equals(text) && ch == '.' && ch != ',') {   
+		            e.consume();
+		        } else if(text.contains(".") || text.contains(",") ){
+		            if(ch == '.'||ch == ',' ) {
+		                e.consume();
+		            }
+		        }
+			}
+			@Override
+			public void keyPressed(KeyEvent e) {
+			}
+			@Override
+			public void keyReleased(KeyEvent e) {
+			}
+		});
 		MaxDisplacementField.getDocument().addDocumentListener(new DocumentListener() {
 			@Override
 			public void changedUpdate(DocumentEvent e) {
@@ -615,7 +789,28 @@ public class SecretionParametresWindows extends JPanel {
 
 			}
 		});
-
+		MinDecayFitterR2Field.addKeyListener(new KeyListener() {
+			@Override
+			public void keyTyped(KeyEvent e) {
+				String text = MinDecayFitterR2Field.getText(); 
+		        char ch = e.getKeyChar(); 
+		        if(!(ch >= '0' && ch <= '9') && ch != '.' && ch != ',') {
+		            e.consume();
+		        } else if("".equals(text) && ch == '.' && ch != ',') {   
+		            e.consume();
+		        } else if(text.contains(".") || text.contains(",") ){
+		            if(ch == '.'||ch == ',' ) {
+		                e.consume();
+		            }
+		        }
+			}
+			@Override
+			public void keyPressed(KeyEvent e) {
+			}
+			@Override
+			public void keyReleased(KeyEvent e) {
+			}
+		});
 		MinDecayFitterR2Field.getDocument().addDocumentListener(new DocumentListener() {
 			@Override
 			public void changedUpdate(DocumentEvent e) {
@@ -642,7 +837,28 @@ public class SecretionParametresWindows extends JPanel {
 
 			}
 		});
-
+		gaussienfitterR2Field.addKeyListener(new KeyListener() {
+			@Override
+			public void keyTyped(KeyEvent e) {
+				String text = gaussienfitterR2Field.getText(); 
+		        char ch = e.getKeyChar(); 
+		        if(!(ch >= '0' && ch <= '9') && ch != '.' && ch != ',') {
+		            e.consume();
+		        } else if("".equals(text) && ch == '.' && ch != ',') {   
+		            e.consume();
+		        } else if(text.contains(".") || text.contains(",") ){
+		            if(ch == '.'||ch == ',' ) {
+		                e.consume();
+		            }
+		        }
+			}
+			@Override
+			public void keyPressed(KeyEvent e) {
+			}
+			@Override
+			public void keyReleased(KeyEvent e) {
+			}
+		});
 		gaussienfitterR2Field.getDocument().addDocumentListener(new DocumentListener() {
 			@Override
 			public void changedUpdate(DocumentEvent e) {

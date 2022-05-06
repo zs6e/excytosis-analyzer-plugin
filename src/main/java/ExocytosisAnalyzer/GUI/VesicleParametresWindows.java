@@ -74,10 +74,7 @@ public class VesicleParametresWindows extends JPanel {
 
 		// to simplify the calcule, we fix the unit to "second"
 		
-		parameters.timeUnit = "sec";
-		
-		
-		
+
 		/*******************************/
 
 		Border titleBorder1 = BorderFactory.createTitledBorder("Set Parameters for Vesicle Detection");
@@ -88,7 +85,7 @@ public class VesicleParametresWindows extends JPanel {
 
 		JLabel radiusFieldLabel = new JLabel("Min vesicule radius (1-25): ");
 		JLabel maxRadiusFieldLabel = new JLabel("Max vesicule radius (1-25): ");
-		JLabel SNR_VesicleFieldLabel = new JLabel("Dectection threshold (1-3): ");
+		JLabel SNR_VesicleFieldLabel = new JLabel("Dectection threshold (wavelet scale): ");
 		JLabel useWaveletFilterLabel = new JLabel("Use wavelet filter");
 		JLabel showlowpassLabel = new JLabel("Show wavelet lowpass image");
 
@@ -97,8 +94,8 @@ public class VesicleParametresWindows extends JPanel {
 
 		pixelSiezField = new JTextField(String.valueOf(parameters.pixelSize), 6);
 		IntervalField = new JTextField(String.valueOf(format.format(parameters.timeInterval)), 6);
-		IntervalUnit = new JTextField("s");
-		framerate = new JTextField(String.valueOf(format.format(1.00 / parameters.timeInterval)), 6);
+		IntervalUnit = new JTextField(parameters.timeUnit);
+		framerate = new JTextField(String.valueOf(format.format(parameters.framerate)), 6);
 
 		radiusField_pixel = new JTextField(String.valueOf(parameters.minRadius), 6);
 		maxRadiusField_pixel = new JTextField(String.valueOf(parameters.maxRadius), 6);
@@ -108,7 +105,7 @@ public class VesicleParametresWindows extends JPanel {
 
 		JLabel intervalUnitLabel = new JLabel(" sec");
 		JLabel framerateUnitLabel = new JLabel(" Hz");
-		JLabel SNR_VesicleLabel = new JLabel(" σ above median");
+		JLabel SNR_VesicleLabel = new JLabel(" σ");
 
 		JLabel radiusJLabel = new JLabel(" pixels ("
 				+ String.valueOf(format.format(Double.parseDouble(radiusField_pixel.getText()) * parameters.pixelSize))
@@ -143,12 +140,27 @@ public class VesicleParametresWindows extends JPanel {
 				}
 			}
 		});
+		
 
-		pixelSiezField.getDocument().addDocumentListener(new DocumentListener() {
+		pixelSiezField.addKeyListener(new KeyListener() {
 			@Override
-			public void changedUpdate(DocumentEvent e) {
-				try {
+			public void keyTyped(KeyEvent e) {
+				String text = pixelSiezField.getText(); 
+		        char ch = e.getKeyChar(); 
+		        if(!(ch >= '0' && ch <= '9') && ch != '.' && ch != ',') {
+		            e.consume();
+		        } else if("".equals(text) && ch == '.' && ch != ',') {   
+		            e.consume();
+		        } else if(text.contains(".") || text.contains(",") ){
+		            if(ch == '.'||ch == ',' ) {
+		                e.consume();
+		            }
+		        }
+		        try {
 					parameters.pixelSize = Double.parseDouble(pixelSiezField.getText());
+					if (parameters.pixelSize <= 0) {
+						parameters.pixelSize = 1;
+					}
 					radiusJLabel.setText(" pixels ("
 							+ String.valueOf(format
 									.format(Double.parseDouble(radiusField_pixel.getText()) * parameters.pixelSize))
@@ -158,14 +170,22 @@ public class VesicleParametresWindows extends JPanel {
 									.format(Double.parseDouble(maxRadiusField_pixel.getText()) * parameters.pixelSize))
 							+ " " + parameters.pixelUnit + ")");
 				} catch (NumberFormatException arg) {
-					pixelSiezField.setText(" Invalid number");
 				}
+			
 			}
 
 			@Override
-			public void insertUpdate(DocumentEvent e) {
+			public void keyPressed(KeyEvent e) {
+
+			}
+
+			@Override
+			public void keyReleased(KeyEvent e) {
 				try {
 					parameters.pixelSize = Double.parseDouble(pixelSiezField.getText());
+					if (parameters.pixelSize <= 0) {
+						parameters.pixelSize = 1;
+					}
 					radiusJLabel.setText(" pixels ("
 							+ String.valueOf(format
 									.format(Double.parseDouble(radiusField_pixel.getText()) * parameters.pixelSize))
@@ -175,12 +195,7 @@ public class VesicleParametresWindows extends JPanel {
 									.format(Double.parseDouble(maxRadiusField_pixel.getText()) * parameters.pixelSize))
 							+ " " + parameters.pixelUnit + ")");
 				} catch (NumberFormatException arg) {
-					pixelSiezField.setText(" Invalid number");
 				}
-			}
-
-			@Override
-			public void removeUpdate(DocumentEvent e) {
 			}
 		});
 
@@ -210,22 +225,44 @@ public class VesicleParametresWindows extends JPanel {
 						+ String.valueOf(format
 								.format(Double.parseDouble(maxRadiusField_pixel.getText()) * parameters.pixelSize))
 						+ " " + parameters.pixelUnit + ")");
-
 			}
 
 			@Override
 			public void removeUpdate(DocumentEvent e) {
-
+				parameters.pixelUnit = pixelSiezUnitField.getText();
+				radiusJLabel.setText(" pixels ("
+						+ String.valueOf(
+								format.format(Double.parseDouble(radiusField_pixel.getText()) * parameters.pixelSize))
+						+ " " + parameters.pixelUnit + ")");
+				maxRadiusJLabel.setText(" pixels ("
+						+ String.valueOf(format
+								.format(Double.parseDouble(maxRadiusField_pixel.getText()) * parameters.pixelSize))
+						+ " " + parameters.pixelUnit + ")");
 			}
 		});
+		
 
 		IntervalField.addKeyListener(new KeyListener() {
 
 			@Override
 			public void keyTyped(KeyEvent e) {
-				try {
+				String text = IntervalField.getText(); 
+		        char ch = e.getKeyChar(); 
+		        if(!(ch >= '0' && ch <= '9') && ch != '.' && ch != ',') {
+		            e.consume();
+		        } else if("".equals(text) && ch == '.' && ch != ',') {   
+		            e.consume();
+		        } else if(text.contains(".") || text.contains(",") ){
+		            if(ch == '.'||ch == ',' ) {
+		                e.consume();
+		            }
+		        }
+		        try {
 					parameters.timeInterval = Double.parseDouble(IntervalField.getText());
-					parameters.framerate = 1.00 / Double.parseDouble(framerate.getText());
+					if (parameters.timeInterval <= 0) {
+						parameters.timeInterval = 1;
+					}
+					parameters.framerate = 1.00 / parameters.pixelSize;
 					framerate.setText(String.valueOf(format.format(1.00 / parameters.timeInterval)));
 				} catch (NumberFormatException arg) {
 
@@ -234,63 +271,69 @@ public class VesicleParametresWindows extends JPanel {
 
 			@Override
 			public void keyPressed(KeyEvent e) {
-				try {
-					parameters.timeInterval = Double.parseDouble(IntervalField.getText());
-					parameters.framerate = 1.00 / Double.parseDouble(framerate.getText());
-					framerate.setText(String.valueOf(format.format(1.00 / parameters.timeInterval)));
-				} catch (NumberFormatException arg) {
 
-				}
 			}
 
 			@Override
 			public void keyReleased(KeyEvent e) {
+
 				try {
 					parameters.timeInterval = Double.parseDouble(IntervalField.getText());
-					parameters.framerate = 1.00 / Double.parseDouble(framerate.getText());
+					if (parameters.timeInterval <= 0) {
+						parameters.timeInterval = 1;
+					}
+					parameters.framerate = 1.00 / parameters.pixelSize;
 					framerate.setText(String.valueOf(format.format(1.00 / parameters.timeInterval)));
 				} catch (NumberFormatException arg) {
 
 				}
 			}
-
 		});
 
 		framerate.addKeyListener(new KeyListener() {
 			@Override
 			public void keyTyped(KeyEvent e) {
+				String text = framerate.getText(); 
+		        char ch = e.getKeyChar(); 
+		        if(!(ch >= '0' && ch <= '9') && ch != '.' && ch != ',') {
+		            e.consume();
+		        } else if("".equals(text) && ch == '.' && ch != ',') {   
+		            e.consume();
+		        } else if(text.contains(".") || text.contains(",") ){
+		            if(ch == '.'||ch == ',' ) {
+		                e.consume();
+		            }
+		        }
+
 				try {
 					parameters.framerate = Double.parseDouble(framerate.getText());
-					parameters.timeInterval = 1.00 / Double.parseDouble(framerate.getText());
+					if (parameters.framerate <= 0) {
+						parameters.framerate = 1;
+					}
+					parameters.timeInterval = 1.00 / parameters.framerate;
 					IntervalField.setText(String.valueOf(format.format(parameters.timeInterval)));
 				} catch (NumberFormatException arg) {
 
 				}
-
 			}
 
 			@Override
 			public void keyPressed(KeyEvent e) {
-				try {
-					parameters.framerate = Double.parseDouble(framerate.getText());
-					parameters.timeInterval = 1.00 / Double.parseDouble(framerate.getText());
-					IntervalField.setText(String.valueOf(format.format(parameters.timeInterval)));
-				} catch (NumberFormatException arg) {
-
-				}
-
 			}
 
 			@Override
 			public void keyReleased(KeyEvent e) {
+
 				try {
 					parameters.framerate = Double.parseDouble(framerate.getText());
-					parameters.timeInterval = 1.00 / Double.parseDouble(framerate.getText());
+					if (parameters.framerate <= 0) {
+						parameters.framerate = 1;
+					}
+					parameters.timeInterval = 1.00 / parameters.framerate;
 					IntervalField.setText(String.valueOf(format.format(parameters.timeInterval)));
 				} catch (NumberFormatException arg) {
 
 				}
-
 			}
 
 		});
@@ -316,12 +359,20 @@ public class VesicleParametresWindows extends JPanel {
 
 			@Override
 			public void removeUpdate(DocumentEvent e) {
+				try {
+					parameters.timeUnit = IntervalUnit.getText();
+				} catch (NumberFormatException arg) {
+				}
 			}
 		});
 
-		radiusField_pixel.getDocument().addDocumentListener(new DocumentListener() {
+		radiusField_pixel.addKeyListener(new KeyListener() {
 			@Override
-			public void changedUpdate(DocumentEvent e) {
+			public void keyTyped(KeyEvent e) {
+		        char ch = e.getKeyChar(); 
+		        if(! (ch >= '1' && ch <= '9') ){
+		            e.consume();
+		        }
 				try {
 					parameters.minRadius = Integer.parseInt(radiusField_pixel.getText());
 					radiusJLabel.setText(" pixels ("
@@ -332,9 +383,12 @@ public class VesicleParametresWindows extends JPanel {
 					radiusJLabel.setText(" Invalid number");
 				}
 			}
+			@Override
+			public void keyPressed(KeyEvent e) {
+			}
 
 			@Override
-			public void insertUpdate(DocumentEvent e) {
+			public void keyReleased(KeyEvent e) {
 				try {
 					parameters.minRadius = Integer.parseInt(radiusField_pixel.getText());
 					radiusJLabel.setText(" pixels ("
@@ -345,15 +399,15 @@ public class VesicleParametresWindows extends JPanel {
 					radiusJLabel.setText(" Invalid number");
 				}
 			}
-
-			@Override
-			public void removeUpdate(DocumentEvent e) {
-			}
 		});
 
-		maxRadiusField_pixel.getDocument().addDocumentListener(new DocumentListener() {
+		maxRadiusField_pixel.addKeyListener(new KeyListener() {
 			@Override
-			public void changedUpdate(DocumentEvent e) {
+			public void keyTyped(KeyEvent e) {
+		        char ch = e.getKeyChar(); 
+		        if(!(ch >= '1' && ch <= '9') ) {
+		            e.consume();
+		        }
 				try {
 					parameters.maxRadius = Integer.parseInt(maxRadiusField_pixel.getText());
 					maxRadiusJLabel.setText(" pixels ("
@@ -364,9 +418,11 @@ public class VesicleParametresWindows extends JPanel {
 					maxRadiusJLabel.setText(" Invalid number");
 				}
 			}
-
 			@Override
-			public void insertUpdate(DocumentEvent e) {
+			public void keyPressed(KeyEvent e) {
+			}
+			@Override
+			public void keyReleased(KeyEvent e) {
 				try {
 					parameters.maxRadius = Integer.parseInt(maxRadiusField_pixel.getText());
 					maxRadiusJLabel.setText(" pixels ("
@@ -377,45 +433,55 @@ public class VesicleParametresWindows extends JPanel {
 					maxRadiusJLabel.setText(" Invalid number");
 				}
 			}
-
-			@Override
-			public void removeUpdate(DocumentEvent e) {
-			}
 		});
 
-		SNR_VesicleField.getDocument().addDocumentListener(new DocumentListener() {
+		SNR_VesicleField.addKeyListener(new KeyListener() {
 			@Override
-			public void changedUpdate(DocumentEvent e) {
+			public void keyTyped(KeyEvent e) {
+				String text = SNR_VesicleField.getText(); 
+		        char ch = e.getKeyChar(); 
+		        if(!(ch >= '0' && ch <= '9') && ch != '.' && ch != ',') {
+		            e.consume();
+		        } else if("".equals(text) && ch == '.' && ch != ',') {   
+		            e.consume();
+		        } else if(text.contains(".") || text.contains(",") ){
+		            if(ch == '.'||ch == ',' ) {
+		                e.consume();
+		            }
+		        }
 				try {
 					parameters.SNR_Vesicle = Double.parseDouble(SNR_VesicleField.getText());
-					SNR_VesicleLabel.setText(" σ above median");
+
 				} catch (NumberFormatException arg) {
-					SNR_VesicleLabel.setText(" Invalid number");
+
+				}
+			}
+			@Override
+			public void keyPressed(KeyEvent e) {
+			}
+			@Override
+			public void keyReleased(KeyEvent e) {
+				try {
+					parameters.SNR_Vesicle = Double.parseDouble(SNR_VesicleField.getText());
+				} catch (NumberFormatException arg) {
 				}
 			}
 
-			@Override
-			public void insertUpdate(DocumentEvent e) {
-				try {
-					parameters.SNR_Vesicle = Double.parseDouble(SNR_VesicleField.getText());
-					SNR_VesicleLabel.setText(" σ above median");
-				} catch (NumberFormatException arg) {
-					SNR_VesicleLabel.setText(" Invalid number");
-				}
-			}
-
-			@Override
-			public void removeUpdate(DocumentEvent e) {
-			}
 		});
 
 		WaveletFilter.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				if (WaveletFilter.isSelected())
+				if (WaveletFilter.isSelected()) {
 					parameters.WaveletFilter = true;
-				else
+					SNR_VesicleFieldLabel.setText("Dectection threshold (Wavelet scale): ");
+				
+				}
+				else {
 					parameters.WaveletFilter = false;
+					SNR_VesicleFieldLabel.setText("Dectection threshold (Intensity): ");
+				}
+					
 			}
 		});
 
@@ -527,7 +593,7 @@ public class VesicleParametresWindows extends JPanel {
 				pixelSiezField.setText(String.valueOf(parameters.pixelSize));
 				IntervalField.setText(String.valueOf(parameters.timeInterval));
 				IntervalUnit.setText(String.valueOf(parameters.timeUnit));
-				framerate.setText(String.valueOf(1.0/parameters.timeInterval));
+				framerate.setText(String.valueOf(parameters.framerate));
 				pixelSiezUnitField.setText(parameters.pixelUnit);
 
 				radiusField_pixel.setText(String.valueOf(parameters.minRadius));
@@ -536,6 +602,13 @@ public class VesicleParametresWindows extends JPanel {
 
 				WaveletFilter.setSelected(parameters.WaveletFilter);
 				lowpass.setSelected(parameters.lowpass);
+				if (WaveletFilter.isSelected()) {
+					SNR_VesicleFieldLabel.setText("Dectection threshold (Wavelet scale): ");
+				
+				}
+				else {
+					SNR_VesicleFieldLabel.setText("Dectection threshold (Intensity): ");
+				}
 
 			}
 		});
@@ -555,6 +628,14 @@ public class VesicleParametresWindows extends JPanel {
 
 				WaveletFilter.setSelected(parameters.WaveletFilter);
 				lowpass.setSelected(parameters.lowpass);
+				if (WaveletFilter.isSelected()) {
+					SNR_VesicleFieldLabel.setText("Dectection threshold (Wavelet scale): ");
+				
+				}
+				else {
+					SNR_VesicleFieldLabel.setText("Dectection threshold (Intensity): ");
+				}
+				
 			}
 		});
 

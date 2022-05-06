@@ -4,6 +4,8 @@ import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -41,7 +43,7 @@ public class TrackingWindows extends JPanel {
 	private JTextField TemporalSearchDepthField;
 	private JTextField minimalEventSizeField;
 	private DecimalFormat format = new DecimalFormat("#0.00#");
-	private JCheckBox Showlist = new JCheckBox("Show events list", false);
+	private JCheckBox Showlist = new JCheckBox("Show Tracking list", false);
 	
 	//private VesicleParametres v_paras;
 	//public Vector<Secretion> detected_events;
@@ -51,13 +53,13 @@ public class TrackingWindows extends JPanel {
 		if (!parameters.loadCustomParameters)
 			parameters.InitialTrackingParameters();
 		
-		Border titleBorder1 = BorderFactory.createTitledBorder("Event Tracking over Time (Trajectory)");
+		Border titleBorder1 = BorderFactory.createTitledBorder("Spot Tracking (vesicle trajectory)");
 		this.setBorder(titleBorder1);
 		
 		//v_paras = paras;
 		//detected_events = new Vector<Secretion>();
 		JLabel SpatialSearchRadiusFieldLabel = new JLabel("Spatial searching range: ");
-		JLabel TimeSearchDepthFieldLabel = new JLabel("Temporal searching depth: ");
+		JLabel TimeSearchDepthFieldLabel = new JLabel("Temporal searching depth (Gap closing): ");
 		JLabel minimalEventSizeFieldLabel = new JLabel("Minimal event size: ");
 
 		
@@ -94,9 +96,13 @@ public class TrackingWindows extends JPanel {
 		ParametresPanel.add(minimalEventSizeLabel, "cell 2 2");
 		ParametresPanel.add(Showlist, "cell 0 3");
 
-		SpatialSearchRadiusField.getDocument().addDocumentListener(new DocumentListener() {
+		SpatialSearchRadiusField.addKeyListener(new KeyListener() {
 			@Override
-			public void changedUpdate(DocumentEvent e) {
+			public void keyTyped(KeyEvent e) {
+		        char ch = e.getKeyChar(); 
+		        if(!(ch >= '1' && ch <= '9') ) {
+		            e.consume();
+		        }
 				try {
 					parameters.SpatialsearchRadius = Integer.parseInt(SpatialSearchRadiusField.getText());
 					radiusJLabel.setText(" "
@@ -108,7 +114,12 @@ public class TrackingWindows extends JPanel {
 			}
 
 			@Override
-			public void insertUpdate(DocumentEvent e) {
+			public void keyPressed(KeyEvent e) {
+
+			}
+
+			@Override
+			public void keyReleased(KeyEvent e) {
 				try {
 					parameters.SpatialsearchRadius = Integer.parseInt(SpatialSearchRadiusField.getText());
 					radiusJLabel.setText(" "
@@ -119,14 +130,15 @@ public class TrackingWindows extends JPanel {
 				}
 			}
 
-			@Override
-			public void removeUpdate(DocumentEvent e) {
-			}
 		});
 		
-		TemporalSearchDepthField.getDocument().addDocumentListener(new DocumentListener() {
+		TemporalSearchDepthField.addKeyListener(new KeyListener() {
 			@Override
-			public void changedUpdate(DocumentEvent e) {
+			public void keyTyped(KeyEvent e) {
+		        char ch = e.getKeyChar(); 
+		        if(!(ch >= '1' && ch <= '9') ) {
+		            e.consume();
+		        }
 				try {
 					parameters.TemporalSearchDepth = Integer.parseInt(TemporalSearchDepthField.getText());
 					TemporalSearchDepthLabel.setText(" frames");
@@ -136,22 +148,27 @@ public class TrackingWindows extends JPanel {
 			}
 
 			@Override
-			public void insertUpdate(DocumentEvent e) {
+			public void keyPressed(KeyEvent e) {
+
+			}
+
+			@Override
+			public void keyReleased(KeyEvent e) {
 				try {
 					parameters.TemporalSearchDepth = Integer.parseInt(TemporalSearchDepthField.getText());
 					TemporalSearchDepthLabel.setText(" frames");
 				} catch (NumberFormatException arg) {
 					TemporalSearchDepthLabel.setText(" Invalid number");
 				}
-			}
-
-			@Override
-			public void removeUpdate(DocumentEvent e) {
 			}
 		});
-		minimalEventSizeField.getDocument().addDocumentListener(new DocumentListener() {
+		minimalEventSizeField.addKeyListener(new KeyListener() {
 			@Override
-			public void changedUpdate(DocumentEvent e) {
+			public void keyTyped(KeyEvent e) {
+		        char ch = e.getKeyChar(); 
+		        if(!(ch >= '1' && ch <= '9') ) {
+		        	 e.consume();
+		        }
 				try {
 					parameters.minimalEventSize = Integer.parseInt(minimalEventSizeField.getText());
 					minimalEventSizeLabel.setText(" frames");
@@ -161,7 +178,12 @@ public class TrackingWindows extends JPanel {
 			}
 
 			@Override
-			public void insertUpdate(DocumentEvent e) {
+			public void keyPressed(KeyEvent e) {
+
+			}
+
+			@Override
+			public void keyReleased(KeyEvent e) {
 				try {
 					parameters.minimalEventSize = Integer.parseInt(minimalEventSizeField.getText());
 					minimalEventSizeLabel.setText(" frames");
@@ -170,9 +192,6 @@ public class TrackingWindows extends JPanel {
 				}
 			}
 
-			@Override
-			public void removeUpdate(DocumentEvent e) {
-			}
 		});
 		
 		Showlist.addActionListener(new ActionListener() {

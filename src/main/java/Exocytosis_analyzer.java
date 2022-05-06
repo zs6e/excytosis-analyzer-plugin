@@ -47,10 +47,9 @@ public class Exocytosis_analyzer implements PlugIn {
 	@Override
 	public void run(String arg) {
 		
-		LocalDate localDate = LocalDate.now();
-
-		if (localDate.getYear()<2022)
-			open_image_win = new openImageWin();
+		//LocalDate localDate = LocalDate.now();
+		//if (localDate.getYear()<2022)
+		open_image_win = new openImageWin();
 		
 	}
 
@@ -146,7 +145,7 @@ public class Exocytosis_analyzer implements PlugIn {
 					
 					if (e.getButton() == MouseEvent.BUTTON1) {
 						if (WindowManager.getCurrentImage() == null) {
-							IJ.error("No open image");
+							IJ.error("No image");
 							return;
 						}
 						ImagePlus imp = WindowManager.getCurrentImage();
@@ -172,6 +171,29 @@ public class Exocytosis_analyzer implements PlugIn {
 			};
 			openBTN.addMouseListener(open);
 			
+
+
+			
+			JButton CloseBTN = new JButton("Close");		
+			MouseAdapter close = new MouseAdapter() {
+				public void mouseReleased(MouseEvent e) {
+					
+					
+					if (e.getButton() == MouseEvent.BUTTON1) {
+						if (WindowManager.getCurrentImage() == null) {
+							IJ.error("No image");
+							return;
+						}
+						WindowManager.getCurrentImage().close();
+						refreshImageList();
+
+					}
+				}	
+			};
+			CloseBTN.addMouseListener(close);
+			
+			
+			
 			JButton RefreshBTN = new JButton("Refresh");
 			MouseAdapter Refresh = new MouseAdapter() {
 				@Override
@@ -182,17 +204,6 @@ public class Exocytosis_analyzer implements PlugIn {
 				}	
 			};
 			RefreshBTN.addMouseListener(Refresh);
-			
-			JButton CloseBTN = new JButton("Close");
-			MouseAdapter close = new MouseAdapter() {
-				@Override
-				public void mouseReleased(MouseEvent e) {
-					if (e.getButton() == MouseEvent.BUTTON1) {
-						open_image_win.dispose();
-					}
-				}	
-			};
-			CloseBTN.addMouseListener(close);
 			
 			MouseAdapter activeWinMon = new MouseAdapter() {
 				@Override

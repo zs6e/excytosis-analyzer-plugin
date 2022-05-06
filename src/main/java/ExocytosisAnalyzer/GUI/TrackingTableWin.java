@@ -767,7 +767,8 @@ public class TrackingTableWin extends JFrame {
 		if (montage_ips == null) {
 			montage_ips = new ImagePlus("Montage");
 			MontageMaker montage = new MontageMaker();
-			int rows = 1 + aSecretion.film.getSize() / MontageCol;
+			int rows = aSecretion.film.getSize() / MontageCol;
+			if (rows ==0 ) rows = 1;
 			montage_ips.setProcessor(montage.makeMontage2(new ImagePlus(null, aSecretion.film), MontageCol, rows,
 					MontageZoom, 1, aSecretion.film.getSize(), 1, MontageGap, MontageLabel).getProcessor());
 
@@ -789,7 +790,8 @@ public class TrackingTableWin extends JFrame {
 		} else {
 			ImagePlus secretion_ips = new ImagePlus("Montage", aSecretion.film.duplicate());
 			MontageMaker montage = new MontageMaker();
-			int rows = 1 + secretion_ips.getStackSize() / MontageCol;
+			int rows = secretion_ips.getStackSize() / MontageCol;
+			if (rows ==0 ) rows = 1;
 			ImageProcessor ip = montage.makeMontage2(secretion_ips, MontageCol, rows, MontageZoom, 1,
 					secretion_ips.getStackSize(), 1, MontageGap, MontageLabel).getProcessor();
 			montage_ips.setProcessor(ip);
@@ -836,7 +838,7 @@ public class TrackingTableWin extends JFrame {
 		}
 
 		// raw data
-		Plot intensityPlot = new Plot("Intensity Curve and Fitter", "Frams", "Intensity");
+		Plot intensityPlot = new Plot("Intensity Curve and Fitter", "Frames", "Intensity");
 		intensityPlot.addPoints(x, aSecretion.getCurve(), Plot.LINE);
 		intensityPlot.addLegend("Raw data:");
 		// fit curve
@@ -1051,7 +1053,7 @@ public class TrackingTableWin extends JFrame {
 			TextField frameAfterPeak = new TextField(String.valueOf(end), 3);
 			Label frameAfterPeakLabel = new Label("End:");
 
-			Plot plotForAddSecretion = new Plot("Fluorecent profile", "Frames", "Intensity");
+			Plot plotForAddSecretion = new Plot("Fluorescent profile", "Frames", "Intensity");
 			plotForAddSecretion.addPoints(xdata, y1data, Plot.LINE);
 			PlotWindow addSecretionWindow = plotForAddSecretion.show();
 			addSecretionWindow.setTitle("Add a event");
@@ -1417,7 +1419,8 @@ public class TrackingTableWin extends JFrame {
 				if (montage_ips != null) {
 					ImagePlus secretion_ips = new ImagePlus("", detected_secretions.elementAt(selectedTableRow).film);
 					MontageMaker montage = new MontageMaker();
-					int rows = 1 + secretion_ips.getStackSize() / MontageCol;
+					int rows = secretion_ips.getStackSize() / MontageCol;
+					if (rows ==0 ) rows = 1;
 					montage_ips.setProcessor(montage.makeMontage2(secretion_ips, MontageCol, rows, MontageZoom, 1,
 							secretion_ips.getStackSize(), 1, MontageGap, MontageLabel).getProcessor());
 					montage_ips.updateAndDraw();

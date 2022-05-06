@@ -111,7 +111,7 @@ public class ResultTableWin extends JFrame {
 		this.setVisible(true);
 		this.setTitle("Detected exocytosis list");
 		this.selectedTableRow = 0;
-		this.secretion_Film_ips = new ImagePlus("Film");
+		this.secretion_Film_ips = new ImagePlus("Movie");
 		this.montage_ips = new ImagePlus("Montage");
 		this.filmZoom = 16;
 		this.MontageZoom = 4;
@@ -176,11 +176,11 @@ public class ResultTableWin extends JFrame {
 				if (e.getButton() == MouseEvent.BUTTON3) {
 					// add right clicks event
 					JPopupMenu popupMenu1 = new JPopupMenu();
-					JMenuItem menuItem1 = new JMenuItem("  Intensity Plot");
-					JMenuItem menuItem2 = new JMenuItem("  dF Plot");
+					JMenuItem menuItem1 = new JMenuItem("  Peak Intensity (F) Plot");
+					JMenuItem menuItem2 = new JMenuItem("  1st order differential (dF) Plot");
 					JMenuItem menuItem3 = new JMenuItem("  Radius Gaussian Ftiier");
 					JMenuItem menuItem4 = new JMenuItem("  Spatial dynamics (Centered rings)");
-					JMenuItem menuItem5 = new JMenuItem("  Film");
+					JMenuItem menuItem5 = new JMenuItem("  Movie");
 					JMenuItem menuItem6 = new JMenuItem("  Montage");
 					menuItem1.addMouseListener(new MouseAdapter() {
 						@Override
@@ -300,14 +300,14 @@ public class ResultTableWin extends JFrame {
 
 		// Analysis buttons
 
-		JButton viewCruvePlotButton = new JButton("Intensity Plot");
+		JButton viewCruvePlotButton = new JButton("Peak Intensity (F) Plot");
 		viewCruvePlotButton.addActionListener((ActionEvent e) -> {
 			viewCruvePlot(detected_secretions.elementAt(selectedTableRow));
 		});
 
 		viewCruvePlotButton.setToolTipText("View intensity Curve and fitter curve");
 
-		JButton viewGrubbsPlotButton = new JButton("dF Plot");
+		JButton viewGrubbsPlotButton = new JButton("(dF) Plot");
 		viewGrubbsPlotButton.addActionListener((ActionEvent e) -> {
 			viewDiffFluoPlot(detected_secretions.elementAt(selectedTableRow));
 		});
@@ -329,7 +329,7 @@ public class ResultTableWin extends JFrame {
 		viewRingSimplingCruveButton.setToolTipText(
 				"View intensity curves simpled (centered rings) from different distances form central pixel. Rings radius increase by 1 pixel");
 
-		JButton viewFilmButton = new JButton("Film");
+		JButton viewFilmButton = new JButton("Movie");
 		viewFilmButton.addActionListener((ActionEvent e) -> {
 			viewFilm(detected_secretions.elementAt(selectedTableRow));
 		});
@@ -353,7 +353,7 @@ public class ResultTableWin extends JFrame {
 		DistributionMap.addActionListener((ActionEvent e) -> {
 			viewHotSpot();
 		});
-		JButton CountingMap = new JButton("Event Counting");
+		JButton CountingMap = new JButton("Event Counts");
 		CountingMap.addActionListener((ActionEvent e) -> {
 			viewTemporalMap();
 		});
@@ -386,7 +386,7 @@ public class ResultTableWin extends JFrame {
 		});
 
 		// Save button
-		JButton SaveButton = new JButton("Save table");
+		JButton SaveButton = new JButton("Export table");
 		SaveButton.addActionListener((ActionEvent e) -> {
 			try {
 
@@ -401,9 +401,9 @@ public class ResultTableWin extends JFrame {
 		});
 
 		// Save Plot button
-		JButton SavePlotButton = new JButton("Save all intensity plots");
+		JButton SavePlotButton = new JButton("Export all intensity plots");
 		SavePlotButton.addActionListener((ActionEvent e) -> {
-			SaveDialog saveFileDialog = new SaveDialog("Save Intensity Curve and Fitter", parameters.path,
+			SaveDialog saveFileDialog = new SaveDialog("Export Intensity Curve and Fitter", parameters.path,
 					parameters.filename);
 			for (Secretion s : detected_secretions) {
 				saveCurvePlot(s, saveFileDialog.getDirectory(), saveFileDialog.getFileName());
@@ -414,7 +414,7 @@ public class ResultTableWin extends JFrame {
 		// Setting Menu
 		JMenuBar menubar = new JMenuBar();
 		JMenu settingMenu = new JMenu("Setting");
-		JMenuItem filmSetting = new JMenuItem("Set film Zoom");
+		JMenuItem filmSetting = new JMenuItem("Set Movie Zoom");
 		JMenuItem MontageSetting = new JMenuItem("Montage Setting");
 
 		filmSetting.addMouseListener(new MouseAdapter() {
@@ -514,7 +514,7 @@ public class ResultTableWin extends JFrame {
 
 		JMenu ViewMenu = new JMenu("View");
 
-		JMenuItem viewCruvePlotM = new JMenuItem("Intensity Cuvre");
+		JMenuItem viewCruvePlotM = new JMenuItem("Peak Intensity (F) Plot");
 		viewCruvePlotM.addActionListener((ActionEvent e) -> {
 			viewCruvePlot(detected_secretions.elementAt(selectedTableRow));
 		});
@@ -549,7 +549,7 @@ public class ResultTableWin extends JFrame {
 		viewRingSimplingCruveM
 				.setToolTipText("View intensity curves simpled from different radius ring to central pixel");
 
-		JMenuItem viewFilmM = new JMenuItem("Film");
+		JMenuItem viewFilmM = new JMenuItem("Movie");
 		viewFilmM.addActionListener((ActionEvent e) -> {
 			viewFilm(detected_secretions.elementAt(selectedTableRow));
 		});
@@ -559,12 +559,12 @@ public class ResultTableWin extends JFrame {
 			viewMontage(detected_secretions.elementAt(selectedTableRow));
 		});
 
-		JMenuItem viewTauHisM = new JMenuItem("Tau Histo");
+		JMenuItem viewTauHisM = new JMenuItem("Tau Hist.");
 		viewTauHisM.addActionListener((ActionEvent e) -> {
 			viewTauHis();
 		});
 
-		JMenuItem viewRadiusHisM = new JMenuItem("Radius Histo");
+		JMenuItem viewRadiusHisM = new JMenuItem("Radius Hist.");
 		viewRadiusHisM.addActionListener((ActionEvent e) -> {
 			viewRadiusHis();
 		});
@@ -573,7 +573,7 @@ public class ResultTableWin extends JFrame {
 		viewHotSpotM.addActionListener((ActionEvent e) -> {
 			viewHotSpot();
 		});
-		JMenuItem viewTMapM = new JMenuItem("Event counting");
+		JMenuItem viewTMapM = new JMenuItem("Event counts");
 		viewTMapM.addActionListener((ActionEvent e) -> {
 			viewTemporalMap();
 		});
@@ -798,7 +798,7 @@ public class ResultTableWin extends JFrame {
 		totalEvent = new JLabel(String.valueOf(event_t) + " events detected, " + String.valueOf(event_a)
 				+ " automatically detected events, " + String.valueOf(event_m) + " manually added events.");
 
-		JLabel addSecetionHelp = new JLabel("Set a ROI over the missing event in the result film window to add it");
+		JLabel addSecetionHelp = new JLabel("Set a ROI over the missing event in the result window to add it");
 
 		resutWinButtonPanel_TOP.setSize(new Dimension(600, 100));
 		resutWinButtonPanel_TOP.setLayout(new FlowLayout());
@@ -884,11 +884,13 @@ public class ResultTableWin extends JFrame {
 		}
 
 		// raw data
-		Plot intensityPlotH = new Plot("Horizontl profile", "Pixels", "Intensity");
+		Plot intensityPlotH = new Plot("Horizontal profile", "Pixels", "Intensity");
 		intensityPlotH.addPoints(xdata, hProfile, Plot.LINE);
 		// fit curve
 		intensityPlotH.setColor(Color.RED);
+		
 		intensityPlotH.addPoints(xdata, hFitter, Plot.LINE);
+		intensityPlotH.addLegend("Fitter");
 		intensityPlotH.updateImage();
 		if (gauss_H_win == null || gauss_H_win.isClosed())
 			gauss_H_win = intensityPlotH.show();
@@ -901,7 +903,9 @@ public class ResultTableWin extends JFrame {
 
 		// fit curve
 		intensityPlotV.setColor(Color.RED);
+		
 		intensityPlotV.addPoints(xdata, vFitter, Plot.LINE);
+		intensityPlotV.addLegend("Fitter");
 		intensityPlotV.updateImage();
 		// new PlotWindow(gauss_V_ips,intensityPlotV);
 		if (gauss_V_win == null || gauss_V_win.isClosed())
@@ -914,7 +918,7 @@ public class ResultTableWin extends JFrame {
 	private void viewFilm(Secretion aSecretion) {
 
 		if (secretion_Film_ips == null) {
-			secretion_Film_ips = new ImagePlus("Film", aSecretion.film.duplicate());
+			secretion_Film_ips = new ImagePlus("Movie", aSecretion.film.duplicate());
 			secretion_Film_ips.show();
 			ImageWindow secretion_Film_win = secretion_Film_ips.getWindow();
 			secretion_Film_win.setTitle("Film");
@@ -970,7 +974,8 @@ public class ResultTableWin extends JFrame {
 		if (montage_ips == null) {
 			montage_ips = new ImagePlus("Montage");
 			MontageMaker montage = new MontageMaker();
-			int rows = 1 + aSecretion.film.getSize() / MontageCol;
+			int rows = aSecretion.film.getSize() / MontageCol;
+			if (rows ==0 ) rows = 1;
 			montage_ips.setProcessor(montage.makeMontage2(new ImagePlus("Montage", aSecretion.film), MontageCol, rows,
 					MontageZoom, 1, aSecretion.film.getSize(), 1, MontageGap, MontageLabel).getProcessor());
 
@@ -992,7 +997,8 @@ public class ResultTableWin extends JFrame {
 		} else {
 			ImagePlus secretion_ips = new ImagePlus("Film for montage", aSecretion.film.duplicate());
 			MontageMaker montage = new MontageMaker();
-			int rows = 1 + secretion_ips.getStackSize() / MontageCol;
+			int rows = secretion_ips.getStackSize() / MontageCol;
+			if (rows ==0 ) rows = 1;
 			ImageProcessor ip = montage.makeMontage2(secretion_ips, MontageCol, rows, MontageZoom, 1,
 					secretion_ips.getStackSize(), 1, MontageGap, MontageLabel).getProcessor();
 			montage_ips.setProcessor(ip);
@@ -1038,7 +1044,7 @@ public class ResultTableWin extends JFrame {
 		}
 
 		// raw data
-		Plot intensityPlot = new Plot("Intensity Curve and Fitter", "Frams", "Intensity");
+		Plot intensityPlot = new Plot("Peak Intensity (F) and Fitter", "Frames", "Intensity");
 		intensityPlot.addPoints(x, aSecretion.getCurve(), Plot.CIRCLE);
 		intensityPlot.addLegend("Raw data:");
 		// fit curve
@@ -1062,7 +1068,7 @@ public class ResultTableWin extends JFrame {
 	private void viewDiffFluoPlot(Secretion aSecretion) {
 
 		double[] diff = aSecretion.getDifferential(1);
-		Plot dFplot = new Plot("Differential Fluorescence Intensity", "Frame", "Differential");
+		Plot dFplot = new Plot("1st order differential (dF) Plot", "Frames", "Differential");
 		double[] x = new double[aSecretion.getDuration()];
 		for (int i = 0; i < x.length; i++) {
 			x[i] = aSecretion.getStartSlice() + i;
@@ -1108,7 +1114,7 @@ public class ResultTableWin extends JFrame {
 		}
 
 		// Central point
-		Plot RingSimpling = new Plot("Fluo", "Frams", "Intensity");
+		Plot RingSimpling = new Plot("Spatial dynamics", "Frames", "Intensity");
 		RingSimpling.addPoints(x, RTCruve.firstElement(), Plot.LINE);
 
 		// Ring simpling
@@ -1181,7 +1187,7 @@ public class ResultTableWin extends JFrame {
 			break;
 		}
 
-		ImagePlus output = new ImagePlus("Distribution Map");
+		ImagePlus output = new ImagePlus("Distribution Map : " + parameters.filename);
 		output.setProcessor(HotSpotMap);
 		output.show();
 		output.getWindow().setTitle("Distribution Map");
@@ -1225,10 +1231,10 @@ public class ResultTableWin extends JFrame {
 			temporalMap[s.peakTime - 1]++;
 		}
 
-		Plot temporalPlot = new Plot("Temporal Map", "Frams", "Frequence");
+		Plot temporalPlot = new Plot("Event counts", "Frames", "Frequence");
 		temporalPlot.addPoints(time, temporalMap, Plot.BAR);
 		PlotWindow temporalPlotWin = temporalPlot.show();
-		temporalPlotWin.setTitle("Temporal events Map");
+		temporalPlotWin.setTitle("Event counts");
 	}
 
 	private void viewTauHis() {
@@ -1296,7 +1302,7 @@ public class ResultTableWin extends JFrame {
 			@Override
 			public void mouseReleased(MouseEvent e) {
 				if (e.getButton() == MouseEvent.BUTTON1) {
-					Plot new_histo = new Plot("Tau distribution", parameters.timeUnit, "");
+					Plot new_histo = new Plot("Radius distribution", parameters.timeUnit, "");
 					radiusHisBin = Double.valueOf(BinField.getText());
 					new_histo.addHistogram(estimated_radius, radiusHisBin);
 					his_radius_win.drawPlot(new_histo);
@@ -1373,8 +1379,8 @@ public class ResultTableWin extends JFrame {
 			}
 
 			// Select a windows of 21 frames
-			int start = roi_slice - 10;
-			int end = roi_slice + 10;
+			int start = roi_slice - parameters.expand_frames_L;
+			int end = roi_slice + 15;
 
 			if (start < 1)
 				start = 1;
@@ -1394,7 +1400,7 @@ public class ResultTableWin extends JFrame {
 			TextField frameAfterPeak = new TextField(String.valueOf(end), 3);
 			Label frameAfterPeakLabel = new Label("End:");
 
-			Plot plotForAddSecretion = new Plot("Fluorecent profile", "Frames", "Intensity");
+			Plot plotForAddSecretion = new Plot("Fluorescent profile", "Frames", "Intensity");
 			plotForAddSecretion.addPoints(xdata, y1data, Plot.LINE);
 			PlotWindow addSecretionWindow = plotForAddSecretion.show();
 			addSecretionWindow.setTitle("Add a event");
@@ -1561,7 +1567,7 @@ public class ResultTableWin extends JFrame {
 		}
 
 		// raw data
-		Plot intensityPlot = new Plot("Intensity Curve and Fitter", "Frams", "Intensity");
+		Plot intensityPlot = new Plot("Peak Intensity (F) Plot and Fitter", "Frames", "Intensity");
 		intensityPlot.addPoints(x, aSecretion.getCurve(), Plot.CIRCLE);
 		intensityPlot.addLegend("Raw data:");
 		// fit curve
@@ -1792,7 +1798,7 @@ public class ResultTableWin extends JFrame {
 		private static final long serialVersionUID = 1L;
 
 		FilmSettingWin() {
-			this.setTitle("Set film defaut zoom...");
+			this.setTitle("Set movie defaut zoom...");
 			this.setLayout(new FlowLayout());
 			this.setSize(200, 200);
 			this.add(new JLabel("Defaut zoom : "));
@@ -1844,7 +1850,8 @@ public class ResultTableWin extends JFrame {
 				if (montage_ips != null) {
 					ImagePlus secretion_ips = new ImagePlus("", detected_secretions.elementAt(selectedTableRow).film);
 					MontageMaker montage = new MontageMaker();
-					int rows = 1 + secretion_ips.getStackSize() / MontageCol;
+					int rows = secretion_ips.getStackSize() / MontageCol;
+					if (rows ==0 ) rows = 1;
 					montage_ips.setProcessor(montage.makeMontage2(secretion_ips, MontageCol, rows, MontageZoom, 1,
 							secretion_ips.getStackSize(), 1, MontageGap, MontageLabel).getProcessor());
 					montage_ips.updateAndDraw();
@@ -2103,12 +2110,12 @@ public class ResultTableWin extends JFrame {
 			 * double[selected_secretion.secretion_event.size()]; double[] time = new
 			 * double[selected_secretion.secretion_event.size()]; int j = 0; for (Vesicle v
 			 * : selected_secretion.secretion_event) { intensity_cruve[j] = v.getMaxDen();
-			 * time[j] = v.slice; j++; } Plot intensity_Plot = new Plot("Fluo", "Frams",
+			 * time[j] = v.slice; j++; } Plot intensity_Plot = new Plot("Fluo", "Frames",
 			 * "Intensity"); intensity_Plot.addPoints(time, intensity_cruve, Plot.LINE);
 			 * intensity_Plot.show(); });
 			 * 
 			 ***/
-			JButton radiusButton = new JButton("View radius cruve");
+			JButton radiusButton = new JButton("View radius curve");
 			radiusButton.addActionListener((ActionEvent e) -> {
 
 				double[] radius_cruve = new double[selected_secretion.secretion_event.size()];
@@ -2120,7 +2127,7 @@ public class ResultTableWin extends JFrame {
 					j++;
 				}
 
-				Plot radius_Plot = new Plot("Radius", "Frams", parameters.pixelUnit);
+				Plot radius_Plot = new Plot("Radius", "Frames", parameters.pixelUnit);
 				radius_Plot.addPoints(time, radius_cruve, Plot.LINE);
 				radius_Plot.show();
 			});
@@ -2131,7 +2138,7 @@ public class ResultTableWin extends JFrame {
 				viewVesicleRadiusFitter(v);
 
 			});
-			JButton filmButton = new JButton("View film");
+			JButton filmButton = new JButton("View movie");
 			filmButton.addActionListener((ActionEvent e) -> {
 				viewFilm(this.selected_secretion);
 			});
@@ -2162,7 +2169,7 @@ public class ResultTableWin extends JFrame {
 				secretion_ic.repaint();
 			});
 
-			JButton SaveButton = new JButton("Save table");
+			JButton SaveButton = new JButton("Save all intensity plots");
 			SaveButton.addActionListener((ActionEvent e) -> {
 				try {
 					SaveUtils.saveVesicleList(columnTitleVesicle, selected_secretion.secretion_event, parameters,

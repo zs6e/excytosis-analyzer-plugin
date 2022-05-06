@@ -59,6 +59,14 @@ public class PhotolechingCorrection {
 			if (mean[n-1] > max) max = mean[n-1];
 
 		}
+		double mean_global = 0;
+		for (int i = 0; i < mean.length; i++) {
+			mean_global = mean_global + mean[i];
+		}
+			
+		mean_global = mean_global/mean.length;	
+			
+			
 		
 		double mean_photobleaching_range = max-min;
 		
@@ -79,7 +87,7 @@ public class PhotolechingCorrection {
 			short[] intensity = (short[]) imp.getStack().getProcessor(n).getPixels();
 			
 				for (int i = 0; i < intensity.length; i++){
-					intensity[i] = (short) Math.abs(intensity[i] - (mean[n-1]-min) * weight_mesh[i] / mean_photobleaching_range);
+					intensity[i] = (short) Math.abs(intensity[i] - (mean[n-1]-mean_global) * weight_mesh[i] / mean_photobleaching_range);
 				}
 		}
 

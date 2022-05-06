@@ -29,16 +29,9 @@ public class Parameters implements Serializable {
 	
 	public int minRadius;
 	public int maxRadius;
-	public double MaxDisplacement;
+
 	public double SNR_Vesicle;
 	
-	public boolean useWavelet = true;
-	public boolean showLowpass = false;
-	public boolean showlist = false;
-	
-
-
-
 	
 	public boolean WaveletFilter;
 	public boolean lowpass;
@@ -48,7 +41,9 @@ public class Parameters implements Serializable {
 	public int SpatialsearchRadius;
 	public int TemporalSearchDepth;
 	public int minimalEventSize;
-
+	public boolean showlist;
+	
+	
 	// Secretoion parameters
 
 	public boolean useMinimalPointsForFitter;
@@ -80,7 +75,7 @@ public class Parameters implements Serializable {
 	
 	public double max_estimated_radius;
 	public double min_estimated_radius;	
-	
+	public double MaxDisplacement;
 	public double min_gaussienfitter2DR2;
 	public String Grubbs_Alpha;
 
@@ -101,13 +96,21 @@ public class Parameters implements Serializable {
 		if (pixelSize == 0)
 			pixelSize = 1;
 		pixelUnit = imp.getCalibration().getUnits();
+		if (pixelUnit == null)
+			pixelUnit = "um";
 		timeInterval = imp.getCalibration().frameInterval;
 		if (timeInterval == 0)
 			timeInterval = 1;
+		//timeUnit = imp.getCalibration().getTimeUnit();
+		//if (timeUnit == null)
+			timeUnit = "sec";
+
+		framerate = 1.0/timeInterval;
 		// defaut
 		minRadius = 2;
 		maxRadius = 3;
 		SNR_Vesicle = 3;
+		
 
 		WaveletFilter = true;
 		lowpass = false;
@@ -166,9 +169,12 @@ public class Parameters implements Serializable {
 		
 		useMinimalPointsForFitter = true;
 		useExpandFrames = true;
-		useMinSNR = true;
+		
+		
 		useMaxTauFrames = false;
 		useMinTauFrames = false;
+		useMinSNR = true;
+		
 		useMaxRadius = false;
 		useMinRadius = false;
 		useMaxDisplacement = false;
@@ -180,13 +186,16 @@ public class Parameters implements Serializable {
 		minimalPointsForFitter = 5;
 		expand_frames_L = 4;
 		expand_frames_R = 4;
+		
 		min_SNR = 3;
+		
 		max_tau = 20;
 		min_tau = 1;
+		min_decay_fitter_r2 = 0.90;
+		
 		max_estimated_radius = maxRadius;
 		min_estimated_radius = minRadius;
 		MaxDisplacement = 3;
-		min_decay_fitter_r2 = 0.90;
 		min_gaussienfitter2DR2 = 0.75;
 		Grubbs_Alpha = "0.05";
 
@@ -196,36 +205,49 @@ public class Parameters implements Serializable {
 
 		this.path = para.path;
 		this.filename = para.filename;
+		this.image_width = para.image_width;
+		this.image_height = para.image_height;
 
 		// Vesicle parameters
 
-		this.WaveletFilter = para.WaveletFilter;
-		this.lowpass = para.lowpass;
-
-		this.minRadius = para.minRadius;
-		this.maxRadius = para.maxRadius;
-		this.SNR_Vesicle = para.SNR_Vesicle;
-		this.useWavelet = para.useWavelet;
-		this.showLowpass = para.showLowpass;
 		this.scaleList = para.scaleList;
+
+
 		this.pixelSize = para.pixelSize;
 		this.timeInterval = para.timeInterval;
 		this.pixelUnit = para.pixelUnit;
 		this.timeUnit = para.timeUnit;
 
+		this.minRadius = para.minRadius;
+		this.maxRadius = para.maxRadius;
+		
+		this.SNR_Vesicle = para.SNR_Vesicle;
+
+		
+		this.WaveletFilter = para.WaveletFilter;
+		this.lowpass = para.lowpass;
+
+
+
+		
+		
+		
 		// Tracking parameters
 
 		this.SpatialsearchRadius = para.SpatialsearchRadius;
 		this.TemporalSearchDepth = para.TemporalSearchDepth;
 		this.minimalEventSize = para.minimalEventSize;
+		this.showlist = para.showlist;
 
 		// Secretoion parameters
 
 		this.useMinimalPointsForFitter = para.useMinimalPointsForFitter;
 		this.useExpandFrames = para.useExpandFrames;
-		this.useMinSNR = para.useMinSNR;
+
 		this.useMaxTauFrames = para.useMaxTauFrames;
 		this.useMinTauFrames = para.useMinTauFrames;
+		this.useMinSNR = para.useMinSNR;
+		
 		this.useMaxRadius = para.useMaxRadius;
 		this.useMinRadius = para.useMinRadius;
 		this.useMaxDisplacement = para.useMaxDisplacement;
@@ -237,14 +259,18 @@ public class Parameters implements Serializable {
 		this.minimalPointsForFitter = para.minimalPointsForFitter;
 		this.expand_frames_L = para.expand_frames_L;
 		this.expand_frames_R = para.expand_frames_R;
+		
+		this.min_SNR = para.min_SNR;
+		
 		this.max_tau = para.max_tau;
 		this.min_tau = para.min_tau;
+		
+		this.min_decay_fitter_r2 = para.min_decay_fitter_r2;
+		
 		this.max_estimated_radius = para.max_estimated_radius;
 		this.min_estimated_radius = para.min_estimated_radius;
 		this.MaxDisplacement = para.MaxDisplacement;
-		this.min_decay_fitter_r2 = para.min_decay_fitter_r2;
 		this.min_gaussienfitter2DR2 = para.min_gaussienfitter2DR2;
-		this.min_SNR = para.min_SNR;
 		this.Grubbs_Alpha = para.Grubbs_Alpha;
 
 	}

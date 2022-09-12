@@ -13,12 +13,12 @@
 
 	<groupId>imagej</groupId>
 	<artifactId>ExocytosisAnalyzer</artifactId>
-	<version>V1.05</version>
+	<version>V1.08</version>
 
 	<name>ImageJ ExcytosisAnalyzer</name>
 	<description>a ImageJ commands.</description>
 	<url>https://github.com/zs6e/excytosis-analyzer-plugin</url>
-	<inceptionYear>2021</inceptionYear>
+	<inceptionYear>2022</inceptionYear>
 	<organization>
 		<name>SFMS</name>
 		<url>[MY-ORGANIZATION-WEB-SITE]</url>

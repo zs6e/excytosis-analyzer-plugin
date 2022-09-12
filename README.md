@@ -2,7 +2,7 @@
     ExoJ is an Image/Fiji plugin to automate the detection and the analysis of exocytosis in fluorescent time series
     Please visit our website for more details
     
-    https://www.project-exoj.com
+    <https://www.project-exoj.com/>
     
     Copyright (C) 2022 - LIU Junjun, BUN Philippe
 
@@ -17,4 +17,4 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-   along with this program.  If not, see <https://www.gnu.org/licenses/>.
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.

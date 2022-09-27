@@ -57,7 +57,7 @@ public class GUIWizard extends JFrame {
 	
 	
 	public ImagePlus imp;
-	public static ImagePlus origin;
+	public static  ImagePlus origin;
 	private final int image_height, image_width, num_of_slices;
 	private Parameters parameters;
 	//private JPanel progressPanel;
@@ -77,10 +77,9 @@ public class GUIWizard extends JFrame {
 	public GUIWizard(ImagePlus input) {
 				
 		this.setTitle("ExoJ: Event Detection");
-		
-		imp = input;
-		imp.show();
 		origin = input;
+		imp = input.duplicate();
+		imp.show();
 		parameters = new Parameters(input);
 		parameters.InitialVesicleParametres(input);
 		elements = new Vector<ElementInFrame>();
@@ -788,6 +787,8 @@ public class GUIWizard extends JFrame {
 	}
 	
 	private void BleachingCorrection() {
+		
+		
 		PhotolechingCorrection.MeshBleachingCorrection(imp, imp.getRoi());
 		imp.updateAndDraw();
 	}

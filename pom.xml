@@ -13,7 +13,7 @@
 
 	<groupId>imagej</groupId>
 	<artifactId>ExocytosisAnalyzer</artifactId>
-	<version>V1.08</version>
+	<version>V1.09</version>
 
 	<name>ImageJ ExcytosisAnalyzer</name>
 	<description>a ImageJ commands.</description>

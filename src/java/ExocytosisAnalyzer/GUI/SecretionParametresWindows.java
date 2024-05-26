@@ -1,5 +1,7 @@
 package ExocytosisAnalyzer.GUI;
 
+import java.text.NumberFormat;
+import java.util.Locale;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.Panel;
@@ -43,8 +45,8 @@ public class SecretionParametresWindows extends JPanel {
 	public JCheckBox useExpandFrames;
 	public JCheckBox useMaxTauFrames;
 	public JCheckBox useMinTauFrames;
-	public JCheckBox useMaxRadius;
-	public JCheckBox useMinRadius;
+	public JCheckBox useMaxSize;
+	public JCheckBox useMinSize;
 	public JCheckBox useMaxDisplacement;
 	public JCheckBox useMinDecayFitterR2;
 	public JCheckBox useMinSNR;
@@ -56,8 +58,8 @@ public class SecretionParametresWindows extends JPanel {
 
 	JTextField MaxTauFramesField;
 	JTextField MinTauFramesField;
-	JTextField MaxRadiusField;
-	JTextField MinRadiusField;
+	JTextField MaxSizeField;
+	JTextField MinSizeField;
 	JTextField MaxDisplacementField;
 	JTextField MinDecayFitterR2Field;
 
@@ -65,7 +67,11 @@ public class SecretionParametresWindows extends JPanel {
 	JTextField gaussienfitterR2Field;
 
 	ImagePlus image; // film Original
-	private DecimalFormat format = new DecimalFormat("#0.00#");
+	//private DecimalFormat format = new DecimalFormat("#0.00#");
+	
+	// Addition from Shengyan Xu
+	Locale locale = Locale.getDefault();
+    private NumberFormat format = NumberFormat.getNumberInstance(locale);
 	
 	// public Vector<Secretion> detected_secretions;
 
@@ -85,8 +91,8 @@ public class SecretionParametresWindows extends JPanel {
 
 		useMaxTauFrames = new JCheckBox("", parameters.useMaxTauFrames);
 		useMinTauFrames = new JCheckBox("", parameters.useMinTauFrames);
-		useMaxRadius = new JCheckBox("", parameters.useMaxRadius);
-		useMinRadius = new JCheckBox("", parameters.useMinRadius);
+		useMaxSize = new JCheckBox("", parameters.useMaxSize);
+		useMinSize = new JCheckBox("", parameters.useMinSize);
 		useMaxDisplacement = new JCheckBox("", parameters.useMaxDisplacement);
 
 		useMinDecayFitterR2 = new JCheckBox("", parameters.useMinDecayFitterR2);
@@ -97,17 +103,17 @@ public class SecretionParametresWindows extends JPanel {
 		minimalPointsForFitterField = new JTextField(String.valueOf(parameters.minimalPointsForFitter), 5);
 		expandFramesField_L = new JTextField(String.valueOf(parameters.expand_frames_L), 5);
 		expandFramesField_R = new JTextField(String.valueOf(parameters.expand_frames_R), 5);
-		MinSNRField = new JTextField(String.valueOf(parameters.min_SNR), 5);
+		MinSNRField = new JTextField(String.valueOf(format.format(parameters.min_SNR)), 5);
 
-		MaxTauFramesField = new JTextField(String.valueOf(parameters.max_tau), 5);
-		MinTauFramesField = new JTextField(String.valueOf(parameters.min_tau), 5);
-		MaxRadiusField = new JTextField(String.valueOf(parameters.max_estimated_radius), 5);
-		MinRadiusField = new JTextField(String.valueOf(parameters.min_estimated_radius), 5);
+		MaxTauFramesField = new JTextField(String.valueOf(format.format(parameters.max_tau)), 5);
+		MinTauFramesField = new JTextField(String.valueOf(format.format(parameters.min_tau)), 5);
+		MaxSizeField = new JTextField(String.valueOf(parameters.max_estimated_size), 5);
+		MinSizeField = new JTextField(String.valueOf(parameters.min_estimated_size), 5);
 		MaxDisplacementField = new JTextField(String.valueOf(parameters.MaxDisplacement), 5);
 
-		MinDecayFitterR2Field = new JTextField(String.valueOf(parameters.min_decay_fitter_r2), 5);
+		MinDecayFitterR2Field = new JTextField(String.valueOf(format.format(parameters.min_decay_fitter_r2)), 5);
 
-		gaussienfitterR2Field = new JTextField(String.valueOf(parameters.min_gaussienfitter2DR2), 5);
+		gaussienfitterR2Field = new JTextField(String.valueOf(format.format(parameters.min_gaussienfitter2DR2)), 5);
 
 		minimalPointsForFitterField.setEnabled(parameters.useMinimalPointsForFitter);
 		expandFramesField_L.setEnabled(parameters.useExpandFrames);
@@ -116,8 +122,8 @@ public class SecretionParametresWindows extends JPanel {
 
 		MaxTauFramesField.setEnabled(parameters.useMaxTauFrames);
 		MinTauFramesField.setEnabled(parameters.useMinTauFrames);
-		MaxRadiusField.setEnabled(parameters.useMaxRadius);
-		MinRadiusField.setEnabled(parameters.useMinRadius);
+		MaxSizeField.setEnabled(parameters.useMaxSize);
+		MinSizeField.setEnabled(parameters.useMinSize);
 		MaxDisplacementField.setEnabled(parameters.useMaxDisplacement);
 
 		MinDecayFitterR2Field.setEnabled(parameters.useMinDecayFitterR2);
@@ -195,28 +201,28 @@ public class SecretionParametresWindows extends JPanel {
 			}
 		});
 
-		useMaxRadius.addActionListener(new ActionListener() {
+		useMaxSize.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				if (useMaxRadius.isSelected()) {
-					parameters.useMaxRadius = true;
-					MaxRadiusField.setEnabled(true);
+				if (useMaxSize.isSelected()) {
+					parameters.useMaxSize = true;
+					MaxSizeField.setEnabled(true);
 				} else {
-					MaxRadiusField.setEnabled(false);
-					parameters.useMaxRadius = false;
+					MaxSizeField.setEnabled(false);
+					parameters.useMaxSize = false;
 				}
 			}
 		});
 
-		useMinRadius.addActionListener(new ActionListener() {
+		useMinSize.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				if (useMinRadius.isSelected()) {
-					parameters.useMinRadius = true;
-					MinRadiusField.setEnabled(true);
+				if (useMinSize.isSelected()) {
+					parameters.useMinSize = true;
+					MinSizeField.setEnabled(true);
 				} else {
-					MinRadiusField.setEnabled(false);
-					parameters.useMinRadius = false;
+					MinSizeField.setEnabled(false);
+					parameters.useMinSize = false;
 				}
 			}
 		});
@@ -266,11 +272,11 @@ public class SecretionParametresWindows extends JPanel {
 		JLabel MinSNRFieldLabel = new JLabel("Detection threshold:");
 		JLabel MaxTauFramesFieldLabel = new JLabel("Upper Decay limit:");
 		JLabel MinTauFramesFieldLabel = new JLabel("Lower Decay limit:");
-		JLabel MaxRadiusFieldLabel = new JLabel("Upper estimated radius limit:");
-		JLabel MinRadiusFieldLabel = new JLabel("Lower estimated radius limit:");
+		JLabel MaxSizeFieldLabel = new JLabel("Upper apparent size limit:");
+		JLabel MinSizeFieldLabel = new JLabel("Lower apparent size limit:");
 		JLabel MaxDisplacementFieldLabel = new JLabel("Max. displacement:");
 		JLabel MinR2FieldLabel = new JLabel("Min. R² (Decay fitting procedure):");
-		JLabel gaussienfitter2DR2Label = new JLabel("Min. R² (Est. radius fitting procedure):");
+		JLabel gaussienfitter2DR2Label = new JLabel("Min. R² (Apparent size fitting procedure):");
 
 		URL expandImgURL = TrackingWindows.class.getResource("expand.jpg");
 		URL deltaFImgURL = TrackingWindows.class.getResource("deltaF.jpg");
@@ -291,11 +297,11 @@ public class SecretionParametresWindows extends JPanel {
 						format.format(Double.parseDouble(MinTauFramesField.getText()) * parameters.timeInterval))
 				+ " " + parameters.timeUnit + ")");
 
-		JLabel MaxRadiusLabel = new JLabel(" pixels ("
-				+ String.valueOf(format.format(Double.parseDouble(MaxRadiusField.getText()) * parameters.pixelSize))
+		JLabel MaxSizeLabel = new JLabel(" pixels ("
+				+ String.valueOf(format.format(Double.parseDouble(MaxSizeField.getText()) * parameters.pixelSize))
 				+ " " + parameters.pixelUnit + ")");
-		JLabel MinRadiusLabel = new JLabel(" pixels ("
-				+ String.valueOf(format.format(Double.parseDouble(MinRadiusField.getText()) * parameters.pixelSize))
+		JLabel MinSizeLabel = new JLabel(" pixels ("
+				+ String.valueOf(format.format(Double.parseDouble(MinSizeField.getText()) * parameters.pixelSize))
 				+ " " + parameters.pixelUnit + ")");
 		JLabel MaxDisplacementLabel = new JLabel(" pixels");
 		JLabel MinR2Label = new JLabel(" ");
@@ -331,15 +337,15 @@ public class SecretionParametresWindows extends JPanel {
 		ParametresPanel1.add(MinTauFramesField, "cell 2 5");
 		ParametresPanel1.add(MinTauFramesLabel, "cell 3 5");
 
-		ParametresPanel1.add(useMaxRadius, "cell 0 6");
-		ParametresPanel1.add(MaxRadiusFieldLabel, "cell 1 6");
-		ParametresPanel1.add(MaxRadiusField, "cell 2 6");
-		ParametresPanel1.add(MaxRadiusLabel, "cell 3 6");
+		ParametresPanel1.add(useMaxSize, "cell 0 6");
+		ParametresPanel1.add(MaxSizeFieldLabel, "cell 1 6");
+		ParametresPanel1.add(MaxSizeField, "cell 2 6");
+		ParametresPanel1.add(MaxSizeLabel, "cell 3 6");
 
-		ParametresPanel1.add(useMinRadius, "cell 0 7");
-		ParametresPanel1.add(MinRadiusFieldLabel, "cell 1 7");
-		ParametresPanel1.add(MinRadiusField, "cell 2 7");
-		ParametresPanel1.add(MinRadiusLabel, "cell 3 7");
+		ParametresPanel1.add(useMinSize, "cell 0 7");
+		ParametresPanel1.add(MinSizeFieldLabel, "cell 1 7");
+		ParametresPanel1.add(MinSizeField, "cell 2 7");
+		ParametresPanel1.add(MinSizeLabel, "cell 3 7");
 
 		ParametresPanel1.add(useMaxDisplacement, "cell 0 8");
 		ParametresPanel1.add(MaxDisplacementFieldLabel, "cell 1 8");
@@ -635,10 +641,10 @@ public class SecretionParametresWindows extends JPanel {
 
 			}
 		});
-		MaxRadiusField.addKeyListener(new KeyListener() {
+		MaxSizeField.addKeyListener(new KeyListener() {
 			@Override
 			public void keyTyped(KeyEvent e) {
-				String text = MaxRadiusField.getText(); 
+				String text = MaxSizeField.getText(); 
 		        char ch = e.getKeyChar(); 
 		        if(!(ch >= '0' && ch <= '9') && ch != '.' && ch != ',') {
 		            e.consume();
@@ -657,16 +663,16 @@ public class SecretionParametresWindows extends JPanel {
 			public void keyReleased(KeyEvent e) {
 			}
 		});
-		MaxRadiusField.getDocument().addDocumentListener(new DocumentListener() {
+		MaxSizeField.getDocument().addDocumentListener(new DocumentListener() {
 			@Override
 			public void changedUpdate(DocumentEvent e) {
 				try {
-					parameters.max_estimated_radius = Double.parseDouble(MaxRadiusField.getText());
-					MaxRadiusLabel.setText(" pixels ("
-							+ String.valueOf(format.format(Double.parseDouble(MaxRadiusField.getText()) * parameters.pixelSize)) + " "
+					parameters.max_estimated_size = Double.parseDouble(MaxSizeField.getText());
+					MaxSizeLabel.setText(" pixels ("
+							+ String.valueOf(format.format(Double.parseDouble(MaxSizeField.getText()) * parameters.pixelSize)) + " "
 							+ parameters.pixelUnit + ")");
 				} catch (NumberFormatException arg) {
-					MaxRadiusLabel.setText(" Invalid number");
+					MaxSizeLabel.setText(" Invalid number");
 				}
 
 			}
@@ -674,12 +680,12 @@ public class SecretionParametresWindows extends JPanel {
 			@Override
 			public void insertUpdate(DocumentEvent e) {
 				try {
-					parameters.max_estimated_radius = Double.parseDouble(MaxRadiusField.getText());
-					MaxRadiusLabel.setText(" pixels ("
-							+ String.valueOf(format.format(Double.parseDouble(MaxRadiusField.getText()) * parameters.pixelSize)) + " "
+					parameters.max_estimated_size = Double.parseDouble(MaxSizeField.getText());
+					MaxSizeLabel.setText(" pixels ("
+							+ String.valueOf(format.format(Double.parseDouble(MaxSizeField.getText()) * parameters.pixelSize)) + " "
 							+ parameters.pixelUnit + ")");
 				} catch (NumberFormatException arg) {
-					MaxRadiusLabel.setText(" Invalid number");
+					MaxSizeLabel.setText(" Invalid number");
 				}
 			}
 
@@ -688,10 +694,10 @@ public class SecretionParametresWindows extends JPanel {
 
 			}
 		});
-		MinRadiusField.addKeyListener(new KeyListener() {
+		MinSizeField.addKeyListener(new KeyListener() {
 			@Override
 			public void keyTyped(KeyEvent e) {
-				String text = MinRadiusField.getText(); 
+				String text = MinSizeField.getText(); 
 		        char ch = e.getKeyChar(); 
 		        if(!(ch >= '0' && ch <= '9') && ch != '.' && ch != ',') {
 		            e.consume();
@@ -710,16 +716,16 @@ public class SecretionParametresWindows extends JPanel {
 			public void keyReleased(KeyEvent e) {
 			}
 		});
-		MinRadiusField.getDocument().addDocumentListener(new DocumentListener() {
+		MinSizeField.getDocument().addDocumentListener(new DocumentListener() {
 			@Override
 			public void changedUpdate(DocumentEvent e) {
-				parameters.min_estimated_radius = Double.parseDouble(MinRadiusField.getText());
+				parameters.min_estimated_size = Double.parseDouble(MinSizeField.getText());
 				try {
-					MinRadiusLabel.setText(" pixels ("
-							+ String.valueOf(format.format(Double.parseDouble(MinRadiusField.getText()) * parameters.pixelSize)) + " "
+					MinSizeLabel.setText(" pixels ("
+							+ String.valueOf(format.format(Double.parseDouble(MinSizeField.getText()) * parameters.pixelSize)) + " "
 							+ parameters.pixelUnit + ")");
 				} catch (NumberFormatException arg) {
-					MinRadiusLabel.setText(" Invalid number");
+					MinSizeLabel.setText(" Invalid number");
 				}
 
 			}
@@ -727,12 +733,12 @@ public class SecretionParametresWindows extends JPanel {
 			@Override
 			public void insertUpdate(DocumentEvent e) {
 				try {
-					parameters.min_estimated_radius = Double.parseDouble(MinRadiusField.getText());
-					MinRadiusLabel.setText(" pixels ("
-							+ String.valueOf(format.format(Double.parseDouble(MinRadiusField.getText()) * parameters.pixelSize)) + " "
+					parameters.min_estimated_size = Double.parseDouble(MinSizeField.getText());
+					MinSizeLabel.setText(" pixels ("
+							+ String.valueOf(format.format(Double.parseDouble(MinSizeField.getText()) * parameters.pixelSize)) + " "
 							+ parameters.pixelUnit + ")");
 				} catch (NumberFormatException arg) {
-					MinRadiusLabel.setText(" Invalid number");
+					MinSizeLabel.setText(" Invalid number");
 				}
 			}
 
@@ -893,7 +899,7 @@ public class SecretionParametresWindows extends JPanel {
 		saveButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				SaveDialog saveFileDialog = new SaveDialog("Save parasmeters", parameters.path, parameters.filename, ".dat");
+				SaveDialog saveFileDialog = new SaveDialog("Save parameters", parameters.path, parameters.filename, ".dat");
 				String saveFilePatch = saveFileDialog.getDirectory() + saveFileDialog.getFileName();
 				if (saveFilePatch != null) {
 					File file = new File(saveFilePatch);
@@ -945,8 +951,8 @@ public class SecretionParametresWindows extends JPanel {
 				useMinSNR.setSelected(parameters.useMinSNR);
 				useMaxTauFrames.setSelected(parameters.useMaxTauFrames);
 				useMinTauFrames.setSelected(parameters.useMinTauFrames);
-				useMaxRadius.setSelected(parameters.useMaxRadius);
-				useMinRadius.setSelected(parameters.useMinRadius);
+				useMaxSize.setSelected(parameters.useMaxSize);
+				useMinSize.setSelected(parameters.useMinSize);
 				useMaxDisplacement.setSelected(parameters.useMaxDisplacement);
 				useMinDecayFitterR2.setSelected(parameters.useMinDecayFitterR2);
 				useGaussienfitter2DR2.setSelected(parameters.useGaussienfitter2DR2);
@@ -963,8 +969,8 @@ public class SecretionParametresWindows extends JPanel {
 				MaxTauFramesField.setEnabled(parameters.useMaxTauFrames);
 				MinTauFramesField.setEnabled(parameters.useMinTauFrames);
 				MinSNRField.setEnabled(parameters.useMinSNR);
-				MaxRadiusField.setEnabled(parameters.useMaxRadius);
-				MinRadiusField.setEnabled(parameters.useMinRadius);
+				MaxSizeField.setEnabled(parameters.useMaxSize);
+				MinSizeField.setEnabled(parameters.useMinSize);
 				MaxDisplacementField.setEnabled(parameters.useMaxDisplacement);
 				MinDecayFitterR2Field.setEnabled(parameters.useMinDecayFitterR2);
 				gaussienfitterR2Field.setEnabled(parameters.useGaussienfitter2DR2);
@@ -976,8 +982,8 @@ public class SecretionParametresWindows extends JPanel {
 				MinSNRField.setText(String.valueOf(format.format(parameters.min_SNR)));
 				MaxTauFramesField.setText(String.valueOf(format.format(parameters.max_tau)));
 				MinTauFramesField.setText(String.valueOf(format.format(parameters.min_tau)));
-				MaxRadiusField.setText(String.valueOf(format.format(parameters.max_estimated_radius)));
-				MinRadiusField.setText(String.valueOf(format.format(parameters.min_estimated_radius)));
+				MaxSizeField.setText(String.valueOf(format.format(parameters.max_estimated_size)));
+				MinSizeField.setText(String.valueOf(format.format(parameters.min_estimated_size)));
 				MaxDisplacementField.setText(String.valueOf(format.format(parameters.MaxDisplacement)));
 				MinDecayFitterR2Field.setText(String.valueOf(format.format(parameters.min_decay_fitter_r2)));
 				gaussienfitterR2Field.setText(String.valueOf(format.format(parameters.min_gaussienfitter2DR2)));
@@ -994,8 +1000,8 @@ public class SecretionParametresWindows extends JPanel {
 				useMinSNR.setSelected(parameters.useMinSNR);
 				useMaxTauFrames.setSelected(parameters.useMaxTauFrames);
 				useMinTauFrames.setSelected(parameters.useMinTauFrames);
-				useMaxRadius.setSelected(parameters.useMaxRadius);
-				useMinRadius.setSelected(parameters.useMinRadius);
+				useMaxSize.setSelected(parameters.useMaxSize);
+				useMinSize.setSelected(parameters.useMinSize);
 				useMaxDisplacement.setSelected(parameters.useMaxDisplacement);
 				useMinDecayFitterR2.setSelected(parameters.useMinDecayFitterR2);
 				useGaussienfitter2DR2.setSelected(parameters.useGaussienfitter2DR2);
@@ -1006,8 +1012,8 @@ public class SecretionParametresWindows extends JPanel {
 				MinSNRField.setEnabled(parameters.useMinSNR);
 				MaxTauFramesField.setEnabled(parameters.useMaxTauFrames);
 				MinTauFramesField.setEnabled(parameters.useMinTauFrames);
-				MaxRadiusField.setEnabled(parameters.useMaxRadius);
-				MinRadiusField.setEnabled(parameters.useMinRadius);
+				MaxSizeField.setEnabled(parameters.useMaxSize);
+				MinSizeField.setEnabled(parameters.useMinSize);
 				MaxDisplacementField.setEnabled(parameters.useMaxDisplacement);
 				MinDecayFitterR2Field.setEnabled(parameters.useMinDecayFitterR2);
 				gaussienfitterR2Field.setEnabled(parameters.useGaussienfitter2DR2);
@@ -1018,8 +1024,8 @@ public class SecretionParametresWindows extends JPanel {
 				MinSNRField.setText(String.valueOf(format.format(parameters.min_SNR)));
 				MaxTauFramesField.setText(String.valueOf(format.format(parameters.max_tau)));
 				MinTauFramesField.setText(String.valueOf(format.format(parameters.min_tau)));
-				MaxRadiusField.setText(String.valueOf(format.format(parameters.max_estimated_radius)));
-				MinRadiusField.setText(String.valueOf(format.format(parameters.min_estimated_radius)));
+				MaxSizeField.setText(String.valueOf(format.format(parameters.max_estimated_size)));
+				MinSizeField.setText(String.valueOf(format.format(parameters.min_estimated_size)));
 				MaxDisplacementField.setText(String.valueOf(format.format(parameters.MaxDisplacement)));
 				MinDecayFitterR2Field.setText(String.valueOf(format.format(parameters.min_decay_fitter_r2)));
 				gaussienfitterR2Field.setText(String.valueOf(format.format(parameters.min_gaussienfitter2DR2)));

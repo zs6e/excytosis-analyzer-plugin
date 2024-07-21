@@ -1,5 +1,7 @@
 package ExocytosisAnalyzer.GUI;
 
+import java.text.NumberFormat;
+import java.util.Locale;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
@@ -41,18 +43,19 @@ public class TrackingWindows extends JPanel {
 	
 	private JTextField SpatialSearchRadiusField;
 	private JTextField TemporalSearchDepthField;
-	private JTextField minimalEventSizeField;
-	private DecimalFormat format = new DecimalFormat("#0.00#");
+	public static JTextField minimalEventSizeField;
+	//private DecimalFormat format = new DecimalFormat("#0.00#");
 	private JCheckBox Showlist = new JCheckBox("Show Tracking list", false);
+	Locale locale = Locale.getDefault();
+    private NumberFormat format = NumberFormat.getNumberInstance(locale);
 	
 	//private VesicleParametres v_paras;
 	//public Vector<Secretion> detected_events;
 
 	public TrackingWindows(Parameters parameters) {
 		
-		if (!parameters.loadCustomParameters)
-			parameters.InitialTrackingParameters();
 		
+
 		Border titleBorder1 = BorderFactory.createTitledBorder("Spot Tracking (vesicle trajectory)");
 		this.setBorder(titleBorder1);
 		
@@ -287,6 +290,15 @@ public class TrackingWindows extends JPanel {
 		this.add(ParametresPanel,BorderLayout.NORTH);
 		this.add(ParametresPanel2,BorderLayout.SOUTH);
 		
+	}
+
+	public static void setMinimalEventSizeField(int minimalEventSize) {
+		try {
+			minimalEventSizeField.setText(String.valueOf(minimalEventSize));
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} 
 	}
 
 

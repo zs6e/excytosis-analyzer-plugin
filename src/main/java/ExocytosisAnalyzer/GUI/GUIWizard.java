@@ -50,6 +50,7 @@ public class GUIWizard extends JFrame {
 	private JButton nextButton;
 	private JButton backButton;
 	private ResultStackWindow preview_stack;
+	private ResultStackWindow preview_dF_stack;
 	
 	private ActionListener detecteVesicle;
 	private ActionListener previewVesicle;
@@ -64,6 +65,9 @@ public class GUIWizard extends JFrame {
 	
 	public ImagePlus imp;
 	public static  ImagePlus origin;
+	public ImagePlus dF;
+	public ImagePlus absdF;
+	
 	private final int image_height, image_width, num_of_slices;
 	private Parameters parameters;
 	//private JPanel progressPanel;
@@ -88,6 +92,8 @@ public class GUIWizard extends JFrame {
 		imp.show();
 		parameters = new Parameters(input);
 		parameters.InitialVesicleParametres(input);
+		parameters.InitialTrackingParameters();
+		parameters.InitialSecretionParameters();
 		elements = new Vector<ElementInFrame>();
 		image_width = imp.getWidth();
 		image_height = imp.getHeight();
@@ -113,9 +119,6 @@ public class GUIWizard extends JFrame {
 		showdeltaMovieLabel = new JLabel("Transform to dF movie");
 		
 		
-		//progress.setVisible(false);
-		//progress.setPreferredSize(new Dimension(600, 30));
-
 		detected_events = new Vector<Secretion>();
 		detected_secretions = new Vector<Secretion>();
 
@@ -160,7 +163,7 @@ public class GUIWizard extends JFrame {
 					preview_stack = new ResultStackWindow(imp.duplicate());
 
 				preview_stack.setTitle("Tracking Preview");
-				new trackingThread(detected_events, true).start();
+				new trackingThread(detected_events, true, parameters).start();
 				previewButton.setEnabled(false);
 				nextButton.setEnabled(false);
 				backButton.setEnabled(false);
@@ -176,7 +179,7 @@ public class GUIWizard extends JFrame {
 
 				preview_stack.setTitle("Tracking Preview");
 				progress = new ProgressMonitor(trackingWindows,"","Tracking in progress...",0, 100);
-				new trackingThread(detected_events, false).start();
+				new trackingThread(detected_events, false, parameters).start();
 
 				previewButton.setEnabled(false);
 				nextButton.setEnabled(false);
@@ -192,25 +195,66 @@ public class GUIWizard extends JFrame {
 		};
 
 		previewVesicle = new ActionListener() {
+	
 			public void actionPerformed(ActionEvent e) {
-				ImagePlus preview_imp = new ImagePlus("Detected spots", imp.getProcessor());
-				ResultStackWindow preview_win = new ResultStackWindow(preview_imp);
-				if (parameters.WaveletFilter) {
-					preview_win.setTitle("Detected spots : Wavelet SNR = " + String.valueOf(parameters.SNR_Vesicle) + " σ" );
-				}
-				else {
-					preview_win.setTitle("Detected spots : Local maxima SNR = " + String.valueOf(parameters.SNR_Vesicle) + " σ" );
-				}
-				if (imp.getRoi() == null)
-					vesicleWindows.setRoi(new Roi(0, 0, image_width, image_height));
-				else
-					vesicleWindows.setRoi(imp.getRoi());
+				ImagePlus preview_imp;
+				ResultStackWindow preview_win;
 				
-				Vector<Vesicle> preview_detection_vesicles = vesicleWindows.preview_Detection(preview_imp, parameters);
-				preview_win.setLabels(preview_detection_vesicles);
-				preview_win.setVisible(true);
+				ImagePlus preview_dF_imp;
+				ResultStackWindow preview_dF_win;
+				ImagePlus preview_absdF_imp;
+							
+			
+				if (deltamovie.isSelected()) {
+					int currentslice = ij.WindowManager.getCurrentImage().getCurrentSlice();
+					dF.setSlice(currentslice);
+					absdF.setSlice(currentslice);
+					imp.setSlice(currentslice);
+					preview_dF_imp = new ImagePlus("Detected spots", dF.getProcessor());
+					preview_absdF_imp = new ImagePlus("Detected spots", absdF.getProcessor());
+					preview_dF_win = new ResultStackWindow(preview_dF_imp);
+					preview_imp = new ImagePlus("Detected spots", imp.getProcessor());
+					preview_win = new ResultStackWindow(preview_imp);
+					if (parameters.WaveletFilter) {
+						preview_win.setTitle("Detected spots : Wavelet SNR = " + String.valueOf(parameters.SNR_Vesicle) + " σ" );
+						preview_dF_win.setTitle("Detected spots in dF : Wavelet SNR = " + String.valueOf(parameters.SNR_Vesicle) + " σ" );
+					}
+					else {
+						preview_win.setTitle("Detected spots : Local maxima SNR = " + String.valueOf(parameters.SNR_Vesicle) + " σ" );
+						preview_dF_win.setTitle("Detected spots in dF : Local maxima SNR = " + String.valueOf(parameters.SNR_Vesicle) + " σ" );
+					}
+					if (imp.getRoi() == null)
+						vesicleWindows.setRoi(new Roi(0, 0, image_width, image_height));
+					else
+						vesicleWindows.setRoi(imp.getRoi());
 
+					Vector<Vesicle> preview_detection_vesicles = vesicleWindows.preview_Detection(preview_absdF_imp, parameters);
+					preview_dF_win.setLabels(preview_detection_vesicles);
+					preview_dF_win.setVisible(true);
+					preview_win.setLabels(preview_detection_vesicles);
+					preview_win.setVisible(true);
+				} else {
+					preview_imp = new ImagePlus("Detected spots", imp.getProcessor());
+					preview_win = new ResultStackWindow(preview_imp);
+					if (parameters.WaveletFilter) {
+						preview_win.setTitle("Detected spots : Wavelet SNR = " + String.valueOf(parameters.SNR_Vesicle) + " σ" );
+					}
+					else {
+						preview_win.setTitle("Detected spots : Local maxima SNR = " + String.valueOf(parameters.SNR_Vesicle) + " σ" );
+					}
+					if (imp.getRoi() == null)
+						vesicleWindows.setRoi(new Roi(0, 0, image_width, image_height));
+					else
+						vesicleWindows.setRoi(imp.getRoi());
+
+					Vector<Vesicle> preview_detection_vesicles = vesicleWindows.preview_Detection(preview_imp, parameters);
+					preview_win.setLabels(preview_detection_vesicles);
+					preview_win.setVisible(true);
+				}
+				
 			}
+
+			
 		};
 
 		detecteVesicle = new ActionListener() {
@@ -238,7 +282,10 @@ public class GUIWizard extends JFrame {
 				previewButton.addActionListener(previewTracking);
 				nextButton.addActionListener(Tracking);
 				backButton.addActionListener(backToVesicle);
-				
+				if (parameters.deltamovie)
+					TrackingWindows.setMinimalEventSizeField(1);
+				else 
+					TrackingWindows.setMinimalEventSizeField(2);
 				
 			}
 		};		
@@ -299,14 +346,18 @@ public class GUIWizard extends JFrame {
 		deltamovie.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				if (photobleachingCorrection.isSelected()) {
-					RestoreImage();
-				    photobleachingCorrection.setSelected(false); 
+				if (deltamovie.isSelected()) {
+					absdF = DeltaMovie.getAbsDeltaMovie(imp);
+					dF = DeltaMovie.getDeltaMovie(imp);
+					dF.show();
+					parameters.deltamovie = true;
+					parameters.minimalEventSize = 1;
+				} else {
+					absdF.close();
+					dF.close();
+					parameters.deltamovie = false;
+					parameters.minimalEventSize = 2;
 				}
-				if (deltamovie.isSelected())
-					showDeltaMovie();
-				else
-					RestoreImage();
 			}
 		});
 		
@@ -364,7 +415,7 @@ public class GUIWizard extends JFrame {
 		this.add(cardPanel);
 		this.add(bottomPanel, BorderLayout.SOUTH);
 		//progress.setVisible(false);
-		this.setSize(600, 500);
+		this.setSize(650, 600);
 		this.setVisible(true);
 	}
 	
@@ -397,8 +448,14 @@ public class GUIWizard extends JFrame {
 		private LocalMaximaDetector myDetector;
 
 		public VesicleDetectThread() {
-			waveletFilter = new MicroWaveletFilter(imp, parameters.scaleList, parameters.SNR_Vesicle);
-			myDetector = new LocalMaximaDetector(imp, parameters);
+			
+			if (deltamovie.isSelected()) {
+				waveletFilter = new MicroWaveletFilter(absdF, parameters.scaleList, parameters.SNR_Vesicle);
+				myDetector = new LocalMaximaDetector(absdF, parameters);
+			} else {
+				waveletFilter = new MicroWaveletFilter(imp, parameters.scaleList, parameters.SNR_Vesicle);
+				myDetector = new LocalMaximaDetector(imp, parameters);
+			}
 			
 			if (imp.getRoi() == null)
 				myDetector.setRoi(new Roi(0, 0, image_width, image_height));
@@ -418,22 +475,36 @@ public class GUIWizard extends JFrame {
 
 					for (int slice = 1; slice <= num_of_slices; slice++) {
 						element = new ElementInFrame();
-						lowPass = waveletFilter.filter(imp.getStack().getProcessor(slice));
+						if (deltamovie.isSelected()) 
+							lowPass = waveletFilter.filter(absdF.getStack().getProcessor(slice));
+						else
+							lowPass = waveletFilter.filter(imp.getStack().getProcessor(slice));
 						element.Vesicles = myDetector.FindLocalMaxima(lowPass, slice, 1);
 						element.Frame_num = slice;
 						elements.add(element);
-						LowPassStack.addSlice(new FloatProcessor(image_width, image_height, lowPass));
+						FloatProcessor newslice = new FloatProcessor(image_width, image_height, lowPass);
+						newslice.invertLut();
+						LowPassStack.addSlice(newslice);
 						progress.setProgress(slice * 100 / num_of_slices);
 					}
 					ImagePlus lowPassImage = new ImagePlus("Wavelet Low-pass Image",LowPassStack);
 					//lowPassImage.setStack(LowPassStack);
 					//lowPassImage.setTitle("Wavelet Low-pass Image");
+				   
 					lowPassImage.show();
+
+
+				
+					
+					
 				} else {
 					float[] lowPass;
 					for (int slice = 1; slice <= num_of_slices; slice++) {
 						element = new ElementInFrame();
-						lowPass = waveletFilter.filter(imp.getStack().getProcessor(slice));
+						if (deltamovie.isSelected()) 
+							lowPass = waveletFilter.filter(absdF.getStack().getProcessor(slice));
+						else
+							lowPass = waveletFilter.filter(imp.getStack().getProcessor(slice));
 						element.Vesicles = myDetector.FindLocalMaxima(lowPass, slice, 1);
 						element.Frame_num = slice;
 						elements.add(element);
@@ -444,7 +515,10 @@ public class GUIWizard extends JFrame {
 				float[] normalized_float_img;
 				for (int slice = 1; slice <= num_of_slices; slice++) {
 					element = new ElementInFrame();
-					normalized_float_img = myDetector.getNormalizedImage(imp.getStack().getProcessor(slice));
+					if (deltamovie.isSelected()) 
+						normalized_float_img = myDetector.getNormalizedImage(absdF.getStack().getProcessor(slice));
+					else
+						normalized_float_img = myDetector.getNormalizedImage(imp.getStack().getProcessor(slice));
 					final float threshold = myDetector.CalculateThreshold(normalized_float_img);
 					element.Vesicles = myDetector.FindLocalMaxima(normalized_float_img, slice, threshold);
 					element.Frame_num = slice;
@@ -462,10 +536,13 @@ public class GUIWizard extends JFrame {
 			if (!noResult) {
 
 				preview_stack = new ResultStackWindow(imp.duplicate());
-				preview_stack.setTitle("Detected spots");
+				preview_stack.setTitle("Detected events");
 				preview_stack.setLabels3(elements);
-				
-
+				if (deltamovie.isSelected()) {
+					preview_dF_stack = new ResultStackWindow(dF.duplicate());
+					preview_dF_stack.setTitle("Detected events");
+					preview_dF_stack.setLabels3(elements);
+				}
 				
 			} else {
 				IJ.showMessage("No event detected");
@@ -482,10 +559,10 @@ public class GUIWizard extends JFrame {
 		private Vector<Secretion> _detected_events;
 		boolean preview;
 
-		public trackingThread(Vector<Secretion> detected_events, boolean preview) {
-			search_radius = parameters.SpatialsearchRadius;
-			TemporalSearchDepth = parameters.TemporalSearchDepth;
-			minimalEventSize = parameters.minimalEventSize;
+		public trackingThread(Vector<Secretion> detected_events, boolean preview, Parameters para) {
+			search_radius = para.SpatialsearchRadius;
+			TemporalSearchDepth = para.TemporalSearchDepth;
+			minimalEventSize = para.minimalEventSize;
 			this._detected_events = detected_events;
 			this._detected_events.removeAllElements();
 			this.preview = preview;
@@ -595,7 +672,7 @@ public class GUIWizard extends JFrame {
 									temporal_vesicle.pixelSizeUnit = parameters.pixelUnit;
 									vesicle_sequence.addElement(temporal_vesicle);
 
-									// Just a temporay vesicle to fill the gap, not valid
+									// Just a temporary vesicle to fill the gap, not valid
 
 									current_vesicle = temporal_vesicle;
 								}
@@ -615,6 +692,8 @@ public class GUIWizard extends JFrame {
 					}
 
 					if (detectedVesicleNum >= minimalEventSize) {
+						
+						
 
 						for (int k = 0; k < vesicle_sequence.size(); k++) {
 							vesicle_sequence.elementAt(k).setImage(imp.getStack());
@@ -642,6 +721,11 @@ public class GUIWizard extends JFrame {
 				
 				preview_stack.setLabels(Vesicles);
 				preview_stack.setVisible(true);
+				
+				if (parameters.deltamovie) {
+					preview_dF_stack.setLabels(Vesicles);
+					preview_dF_stack.setVisible(true);
+				}
 
 
 			} else {
@@ -723,7 +807,7 @@ public class GUIWizard extends JFrame {
 					for (int s = 1; s <= parameters.expand_frames_L; s++) {
 						if ((start_slice - s) < 1)
 							continue;
-						Vesicle aVesicle = new Vesicle(start_x, start_y, current_secretion_event.secretion_event.firstElement().radius, start_slice - s, imp.getStack());
+						Vesicle aVesicle = new Vesicle(start_x, start_y, current_secretion_event.secretion_event.firstElement().radius, start_slice - s, imp.getStack(), parameters.fixedExpand);
 						aVesicle.isValid = false;
 						aVesicle.property = "Expanded";
 						aVesicle.pixelSize = parameters.pixelSize;
@@ -733,7 +817,7 @@ public class GUIWizard extends JFrame {
 					for (int s = 1; s <= parameters.expand_frames_R; s++) {
 						if ((fin_slice + s) > num_of_slices)
 							continue;
-						Vesicle aVesicle = new Vesicle(fin_x, fin_y, current_secretion_event.secretion_event.firstElement().radius, fin_slice + s, imp.getStack());
+						Vesicle aVesicle = new Vesicle(fin_x, fin_y, current_secretion_event.secretion_event.firstElement().radius, fin_slice + s, imp.getStack(), parameters.fixedExpand);
 						aVesicle.isValid = false;
 						aVesicle.property = "Expanded";
 						aVesicle.pixelSize = parameters.pixelSize;
@@ -852,6 +936,12 @@ public class GUIWizard extends JFrame {
 				new ResultTableWin(imp, preview_stack, _detected_secretions, parameters);
 				preview_stack.setLabels(Vesicles);
 				preview_stack.setVisible(true);
+				if (parameters.deltamovie) {
+					preview_dF_stack.setLabels(Vesicles);
+					preview_dF_stack.setVisible(true);
+				}
+				
+				
 			} else {
 				IJ.showMessage("No event detected");
 			}
@@ -886,10 +976,7 @@ public class GUIWizard extends JFrame {
 		PhotolechingCorrection.MeshBleachingCorrection(imp);
 		imp.updateAndDraw();
 	}
-	private void showDeltaMovie() {
-		DeltaMovie.getDeltaMovie(imp);
-		imp.updateAndDraw();
-	}
+
 	private void RestoreImage() {
 		imp.setImage(origin.duplicate()); 
 		imp.updateAndDraw();

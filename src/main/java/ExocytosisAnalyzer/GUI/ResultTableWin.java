@@ -1,5 +1,7 @@
 package ExocytosisAnalyzer.GUI;
 
+import java.text.NumberFormat;
+import java.util.Locale;
 import java.awt.BorderLayout;
 import java.awt.Button;
 import java.awt.Color;
@@ -13,11 +15,11 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.TextField;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.IOException;
-import java.text.DecimalFormat;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Enumeration;
@@ -94,7 +96,9 @@ public class ResultTableWin extends JFrame {
 	private int MontageZoom, MontageCol, MontageGap;
 	private boolean MontageLabel;
 
-	private DecimalFormat format = new DecimalFormat("#0.00#");
+	//private DecimalFormat format = new DecimalFormat("#0.00#");
+	Locale locale = Locale.getDefault();
+    private NumberFormat format = NumberFormat.getNumberInstance(locale);
 	// public VesicleParametres v_paras; // detection parameters for vesicles
 	// public SecretionParameters s_paras; // detection parameters for secretion
 	public Vector<Secretion> detected_secretions;
@@ -128,29 +132,34 @@ public class ResultTableWin extends JFrame {
 		// Initial Table
 
 		columnTitleExocytosis = new String[] { 
-				"Ref", // 1
-				"Property", // 2
-				"Begin Frame", // 3
-				"Duration", // 4
-				"Peak Frame", // 5
-				"Position (x,y)", // 6
-				"Max. Displacement (pixels)", // 7
-				"Apparent Size (FWHM, " + parameters.pixelUnit + ")", // 8
-				"R² for Size", // 9
-				"τ (" + parameters.timeUnit + ")", // 10
-				"R² for Decay Est.", // 11
-				"dF/σ (MAD)", // 12
-				"F0", "ΔF" };
+				"Ref ", // 0
+				"Property ", // 1
+				"Begin Frame ", // 2
+				"Duration ", // 3
+				"Peak Frame ", // 4
+				"Position (x,y) ", // 5
+				"Max. Displacement (pixels) ", // 6
+				"τ (" + parameters.timeUnit + ") ", // 7
+				"R² for Decay Est. ", // 8
+				"dF/σ (MAD) ", // 9
+				"F0 ", //10
+				"ΔF ", //11
+				"R² for Gaussian fit ", // 12
+				"Size (FWHM, " + parameters.pixelUnit + ")" // 13
+						
+		
+		};
 
 		columnTitleVesicle = new String[] { 
-				"Ref", // 1
-				"Property", // 2
-				"Frame", // 3
-				"Intensity", // 4
-				"x", // 5
-				"y", // 6
-				"Apparent Size (FWHM, " + parameters.pixelUnit + ")", // 7
-				"R²" // 8
+				"Ref ", // 0
+				"Property ", // 1
+				"Frame ", // 2
+				"Intensity ", // 3
+				"x ", // 4
+				"y ", // 5
+				"R² for Gaussian fit ", // 6
+				"Size (FWHM, " + parameters.pixelUnit + ")" // 7
+				
 		};
 
 		Object[][] tableData = new Object[detected_secretions.size()][8];
@@ -164,13 +173,14 @@ public class ResultTableWin extends JFrame {
 					s.peakTime,
 					s.getStartX() + "," + s.getStartY(), 
 					format.format(s.getMaxDisplacement()),
-					format.format(s.getEstimatedPeakSize2D() * parameters.pixelSize),
-					format.format(s.getPeakGaussfitterRsquare2D()),
 					format.format(s.Decay_tau * parameters.timeInterval),
 					format.format(s.Decay_R2),
 					format.format(s.getSNR()),
 					format.format(s.getF_zero()), 
-					format.format(s.getDeltaF()) };
+					format.format(s.getDeltaF()),
+					format.format(s.getPeakGaussfitterRsquare2D()),
+					format.format(s.getEstimatedPeakSize2D() * parameters.pixelSize)
+			};
 			i++;
 		}
 
@@ -179,11 +189,13 @@ public class ResultTableWin extends JFrame {
 		
 		secretionEventList = new ResultTable(result_dtmS);
 		FitTableColumns(secretionEventList);
-		// secretionEventList.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-		secretionEventList.getTableHeader().setReorderingAllowed(false);
-
+		secretionEventList.getTableHeader().setResizingAllowed(false);
+		
+		//remove apparent size if not selected
+		if ((parameters.useMaxSize == false) && (parameters.useMinSize== false)){
+			secretionEventList.removeColumn(secretionEventList.getColumnModel().getColumn(13));
+		}
 		// Event listener
-
 		MouseAdapter ResultListMouseAdapter = new MouseAdapter() {
 			@Override
 			public void mouseReleased(MouseEvent e) {
@@ -261,10 +273,10 @@ public class ResultTableWin extends JFrame {
 					output_ips.setActivated();
 					output_ips.setSlice(selectedSecretion.peakTime);
 
-					int RoiX = selectedSecretion.peakX - parameters.minSize - 8;
-					int RoiY = selectedSecretion.peakY - parameters.minSize - 8;
+					int RoiX = selectedSecretion.peakX - (parameters.minSize + 8);
+					int RoiY = selectedSecretion.peakY - (parameters.minSize + 8);
 
-					output_ips.setRoi(RoiX, RoiY, parameters.minSize + 16, parameters.minSize + 16);
+					output_ips.setRoi(RoiX, RoiY, parameters.minSize*2 + 16, parameters.minSize*2 + 16);
 				}
 				// add double clicks event
 				if (e.getClickCount() == 2) {
@@ -286,9 +298,9 @@ public class ResultTableWin extends JFrame {
 					output_ips.setActivated();
 					output_ips.setSlice(s.peakTime);
 
-					int RoiX = s.peakX - parameters.minSize - 8;
-					int RoiY = s.peakY - parameters.minSize - 8;
-					output_ips.setRoi(RoiX, RoiY, parameters.minSize + 16, parameters.minSize + 16);
+					int RoiX = s.peakX - (parameters.minSize + 8);
+					int RoiY = s.peakY - (parameters.minSize + 8);
+					output_ips.setRoi(RoiX, RoiY, parameters.minSize*2 + 16, parameters.minSize*2 + 16);
 
 					if (secretion_Film_ips.isVisible())
 						viewFilm(s);
@@ -747,35 +759,32 @@ public class ResultTableWin extends JFrame {
 					Collections.sort(detected_secretions, new comparator_MovDistance());
 					refreshSecretionList();
 				}
-
 				if (choose == 7) {
-					Collections.sort(detected_secretions, new comparator_Size());
-					refreshSecretionList();
-				}
-
-				if (choose == 8) {
-					Collections.sort(detected_secretions, new comparator_RadiusR2());
-					refreshSecretionList();
-				}
-
-				if (choose == 9) {
 					Collections.sort(detected_secretions, new comparator_Decay_tau());
 					refreshSecretionList();
 				}
-				if (choose == 10) {
+				if (choose == 8) {
 					Collections.sort(detected_secretions, new comparator_decayR2());
 					refreshSecretionList();
 				}
-				if (choose == 11) {
+				if (choose == 9) {
 					Collections.sort(detected_secretions, new comparator_SNR());
 					refreshSecretionList();
 				}
-				if (choose == 12) {
+				if (choose == 10) {
 					Collections.sort(detected_secretions, new comparator_F_zero());
 					refreshSecretionList();
 				}
-				if (choose == 13) {
+				if (choose == 11) {
 					Collections.sort(detected_secretions, new comparator_DeltaF());
+					refreshSecretionList();
+				}
+				if (choose == 12) {
+					Collections.sort(detected_secretions, new comparator_RadiusR2());
+					refreshSecretionList();
+				}
+				if (choose == 13) {
+					Collections.sort(detected_secretions, new comparator_Size());
 					refreshSecretionList();
 				}
 
@@ -847,10 +856,10 @@ public class ResultTableWin extends JFrame {
 		resutWinButtonPanel_TOP.add(viewRadiusHisBtn);
 		resutWinButtonPanel_TOP.add(viewTauHisBtn);
 
-		resutWinButtonPanel_Infos.setSize(new Dimension(600, 100));
+		resutWinButtonPanel_Infos.setSize(new Dimension(800, 100));
 		resutWinButtonPanel_Infos.add(totalEvent);
 
-		resutWinButtonPanel_BottomButton.setSize(new Dimension(600, 100));
+		resutWinButtonPanel_BottomButton.setSize(new Dimension(800, 100));
 		resutWinButtonPanel_BottomButton.setLayout(new FlowLayout(FlowLayout.LEFT));
 		resutWinButtonPanel_BottomButton.add(addSecetionHelp);
 		resutWinButtonPanel_BottomButton.add(AddButton);
@@ -877,17 +886,14 @@ public class ResultTableWin extends JFrame {
 		output_ips.getCanvas().addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseReleased(MouseEvent e) {
-				int row = secretionEventList.getSelectedRow();
+				int row = 0;
 				Point clickPoint = ((ImageCanvas) e.getSource()).getCursorLoc();
-				int currentSlice = output_ips.getSlice();
+				int currentSlice = output_ips.getCurrentSlice();
 				for (int i = 0; i < detected_secretions.size(); i++) {
 					if (currentSlice >= detected_secretions.elementAt(i).getStartSlice()
-							&& currentSlice <= detected_secretions.elementAt(i).getFinSlice()
-							&& Math.abs(clickPoint.x - detected_secretions.elementAt(i).getStartX()) <= 5
-									+ parameters.minSize
-							&& Math.abs(clickPoint.y - detected_secretions.elementAt(i).getStartY()) <= 5
-									+ parameters.minSize) {
-
+						&& currentSlice <= detected_secretions.elementAt(i).getFinSlice()
+						&& Math.abs(clickPoint.x - detected_secretions.elementAt(i).getStartX()) <= (5 + parameters.minSize)
+						&& Math.abs(clickPoint.y - detected_secretions.elementAt(i).getStartY()) <= (5 + parameters.minSize)) {
 						row = i;
 					}
 				}
@@ -1575,13 +1581,14 @@ public class ResultTableWin extends JFrame {
 					s.peakTime,
 					s.getStartX() + "," + s.getStartY(), 
 					format.format(s.getMaxDisplacement()),
-					format.format(s.getEstimatedPeakSize2D() * parameters.pixelSize),
-					format.format(s.getPeakGaussfitterRsquare2D()),
 					format.format(s.Decay_tau * parameters.timeInterval), 
 					format.format(s.Decay_R2),
 					format.format(s.getSNR()),
 					format.format(s.getF_zero()),
-					format.format(s.getDeltaF()) };
+					format.format(s.getDeltaF()),
+					format.format(s.getPeakGaussfitterRsquare2D()),
+					format.format(s.getEstimatedPeakSize2D() * parameters.pixelSize)
+					};
 			i++;
 		}
 
@@ -1590,6 +1597,12 @@ public class ResultTableWin extends JFrame {
 		secretionEventList.validate();
 		secretionEventList.updateUI();
 		secretionEventList.changeSelection(selectedTableRow, 0, false, false);
+		FitTableColumns(secretionEventList);
+		secretionEventList.getTableHeader().setResizingAllowed(false);
+
+		if ((parameters.useMaxSize == false) && (parameters.useMinSize== false))  {
+			secretionEventList.removeColumn(secretionEventList.getColumnModel().getColumn(13));
+		}
 
 		// count event number
 		int event_t = 0;
@@ -1763,7 +1776,7 @@ public class ResultTableWin extends JFrame {
 			Secretion s2 = (Secretion) o2;
 			if (s1.getPeakGaussfitterRsquare2D() > s2.getPeakGaussfitterRsquare2D())
 				return -1; // decrease
-			else if (s1.Decay_R2 < s2.Decay_R2)
+			else if (s1.getPeakGaussfitterRsquare2D() < s2.getPeakGaussfitterRsquare2D())
 				return 1;
 			else
 				return 0;
@@ -1994,8 +2007,15 @@ public class ResultTableWin extends JFrame {
 
 			int i = 0;
 			for (Vesicle v : selected_secretion.secretion_event) {
-				tableData[i] = new Object[] { i, v.property, v.slice, v.getMaxDen(), v.x, v.y,
-						format.format(v.EstimateSize2D() * parameters.pixelSize), format.format(v.get2DFitRsqr()) };
+				tableData[i] = new Object[] { 
+						i, 
+						v.property, 
+						v.slice, 
+						v.getMaxDen(),
+						v.x,
+						v.y,
+						format.format(v.EstimateSize2D() * parameters.pixelSize), 
+						format.format(v.get2DFitRsqr()) };
 				i++;
 			}
 
@@ -2067,9 +2087,9 @@ public class ResultTableWin extends JFrame {
 						output_ips.setActivated();
 						output_ips.setSlice(v.slice);
 						int Radius = v.radius;
-						int RoiX = v.x - Radius - 8;
-						int RoiY = v.y - Radius - 8;
-						output_ips.setRoi(RoiX, RoiY, Radius + 16, Radius + 16);
+						int RoiX = v.x - (Radius + 8);
+						int RoiY = v.y - (Radius + 8);
+						output_ips.setRoi(RoiX, RoiY, Radius*2 + 16, Radius*2 + 16);
 						if (gauss_H_win != null && gauss_V_win != null) {
 							if (gauss_H_win.isVisible() || gauss_V_win.isVisible()) {
 								viewVesicleRadiusFitter(v);
@@ -2111,7 +2131,7 @@ public class ResultTableWin extends JFrame {
 					Vesicle v = new Vesicle(selected_secretion.secretion_event.firstElement().x,
 							selected_secretion.secretion_event.firstElement().y,
 							selected_secretion.secretion_event.firstElement().radius,
-							selected_secretion.secretion_event.firstElement().slice - 1, image.getStack());
+							selected_secretion.secretion_event.firstElement().slice - 1, image.getStack(),parameters.fixedExpand);
 					v.pixelSize = parameters.pixelSize;
 					v.pixelSizeUnit = parameters.pixelUnit;
 					v.property = "Custom";
@@ -2120,7 +2140,13 @@ public class ResultTableWin extends JFrame {
 					selected_secretion.setPeakTime(selected_secretion.peakTime);
 					selected_secretion.Fit();
 					secretion_dtm.insertRow(0,
-							new Object[] { v.getRef(), v.property, v.slice, v.getMaxDen(), v.x, v.y,
+							new Object[] { 
+									v.getRef(),
+									v.property, 
+									v.slice, 
+									v.getMaxDen(), 
+									v.x, 
+									v.y,
 									format.format(v.EstimateSize2D() * parameters.pixelSize),
 									format.format(v.get2DFitRsqr()) });
 					refreshSecretionList();
@@ -2142,7 +2168,7 @@ public class ResultTableWin extends JFrame {
 					Vesicle v = new Vesicle(selected_secretion.secretion_event.lastElement().x,
 							selected_secretion.secretion_event.lastElement().y,
 							selected_secretion.secretion_event.lastElement().radius,
-							selected_secretion.secretion_event.lastElement().slice + 1, image.getStack());
+							selected_secretion.secretion_event.lastElement().slice + 1, image.getStack(),parameters.fixedExpand);
 					v.pixelSize = parameters.pixelSize;
 					v.pixelSizeUnit = parameters.pixelUnit;
 					v.property = "Custom";
@@ -2150,7 +2176,13 @@ public class ResultTableWin extends JFrame {
 					selected_secretion.setFitPointNum(selected_secretion.min_points_num);
 					selected_secretion.setPeakTime(selected_secretion.peakTime);
 					selected_secretion.Fit();
-					secretion_dtm.addRow(new Object[] { v.getRef(), v.property, v.slice, v.getMaxDen(), v.x, v.y,
+					secretion_dtm.addRow(new Object[] { 
+							v.getRef(), 
+							v.property, 
+							v.slice, 
+							v.getMaxDen(),
+							v.x, 
+							v.y,
 							format.format(v.EstimateSize2D() * parameters.pixelSize),
 							format.format(v.get2DFitRsqr()) });
 					refreshSecretionList();
@@ -2166,7 +2198,20 @@ public class ResultTableWin extends JFrame {
 				selected_secretion.Fit();
 				refreshSecretionList();
 			});
+			
+			JCheckBox fixedExpand = new JCheckBox("Fixed position", parameters.useExpandFrames);
+			fixedExpand.setSelected(parameters.fixedExpand);
+			fixedExpand.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					if (fixedExpand.isSelected()) {
+						parameters.fixedExpand = true;
+					} else {
+						parameters.fixedExpand = false;
 
+					}
+				}
+			});
 			// Intensity button
 
 			/***
@@ -2254,6 +2299,7 @@ public class ResultTableWin extends JFrame {
 			addRemoveButtonPanelTop.setLayout(new FlowLayout());
 			addRemoveButtonPanelTop.add(expendButton_top);
 			addRemoveButtonPanelTop.add(removeButton_top);
+			addRemoveButtonPanelTop.add(fixedExpand);
 
 			JPanel addRemoveButtonPanelBottom = new JPanel();
 			addRemoveButtonPanelBottom.setLayout(new FlowLayout());
@@ -2310,27 +2356,28 @@ public class ResultTableWin extends JFrame {
 
 		@Override
 		public boolean isCellEditable(int row, int column) // unEditable
+
 		{
 			return false;
-		}
+		} 
 		
 		@Override
 	    public Component prepareRenderer(TableCellRenderer renderer, int row, int col) {
 
-		        Component c = super.prepareRenderer(renderer, row, col);
-		        //if (col == 7 && Double.valueOf((String) getValueAt(row, col)) <= parameters.TheoreticalResolution) 
-		        if (col == 7 && detected_secretions.elementAt(row).getEstimatedPeakSize2D() * parameters.pixelSize <= parameters.TheoreticalResolution)
-	                c.setForeground(Color.RED);
-		        //else if (col == 9 && Double.valueOf((String) getValueAt(row, col)) <= 0) 
-		        else if (col == 9 && detected_secretions.elementAt(row).Decay_tau * parameters.timeInterval <= 0) 
-		            c.setForeground(Color.RED);
-		        else
-		        	c.setForeground(Color.BLACK);
-		       return c;
-		       
-		    }
-
+	        Component c = super.prepareRenderer(renderer, row, col);
+        	
+	        if (col == 7 && detected_secretions.elementAt(row).Decay_tau <= 0) 
+	            c.setForeground(Color.RED);
+	        else if (col == 13 && detected_secretions.elementAt(row).getEstimatedPeakSize2D() * parameters.pixelSize <= parameters.TheoreticalResolution)
+                c.setForeground(Color.RED);
+	        else 
+	 	        c.setForeground(Color.BLACK);
+	       return c;
+	       
+	    }
 	}
+			
+
 
 	public class VesicleTable extends JTable {
 

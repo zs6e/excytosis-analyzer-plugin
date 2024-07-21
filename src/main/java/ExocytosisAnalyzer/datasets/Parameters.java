@@ -8,7 +8,7 @@ import ij.ImagePlus;
 @SuppressWarnings("serial")
 public class Parameters implements Serializable {
 
-
+    
 	// Global
 	public boolean loadCustomParameters = false;
 	private final int[] availableScale = { 1, 3, 7, 13, 25 }; // in pixel
@@ -23,7 +23,6 @@ public class Parameters implements Serializable {
 	public double pixelSize;
 	public double timeInterval;
 	public double framerate;
-	public double TheoreticalResolution;
 	public String pixelUnit;
 	public String timeUnit;
 	
@@ -33,9 +32,11 @@ public class Parameters implements Serializable {
 	public double SNR_Vesicle;
 	
 	public boolean useTheoreticalResolution;
+	public double TheoreticalResolution;
+	
 	public boolean WaveletFilter;
 	public boolean lowpass;
-	
+	public boolean deltamovie;
 	// Tracking parameters
 
 	public int SpatialsearchRadius;
@@ -44,10 +45,11 @@ public class Parameters implements Serializable {
 	public boolean showlist;
 	
 	
-	// Secretoion parameters
+	// Secretion parameters
 
 	public boolean useMinimalPointsForFitter;
 	public boolean useExpandFrames;
+	public boolean fixedExpand;
 
 	public boolean useMaxTauFrames;
 	public boolean useMinTauFrames;
@@ -110,12 +112,11 @@ public class Parameters implements Serializable {
 		minSize = 4;
 		maxSize = 8;
 		SNR_Vesicle = 3;
-		TheoreticalResolution = 0;
-		
+		TheoreticalResolution = 0.4;
 		useTheoreticalResolution = false;
 		WaveletFilter = true;
 		lowpass = false;
-
+		deltamovie = false;
 		// Calculate wavelet scale
 		boolean isEnable = false;
 		for (int i = 0; i < 5; i++) {
@@ -123,6 +124,8 @@ public class Parameters implements Serializable {
 				scaleList[i] = true;
 				isEnable = true;
 			}
+			else
+				scaleList[i] = false;
 		}
 		if (!isEnable) {
 			for (int i = 1; i < 5; i++) {
@@ -142,6 +145,8 @@ public class Parameters implements Serializable {
 				scaleList[i] = true;
 				isEnable = true;
 			}
+			else
+				scaleList[i] = false;
 		}
 		if (!isEnable) {
 			for (int i = 0; i < 5; i++) {
@@ -159,9 +164,13 @@ public class Parameters implements Serializable {
 		
 		SpatialsearchRadius = 2;
 		TemporalSearchDepth = 1;
-		minimalEventSize = 2;
+		
 		showlist = false;
-
+		if (deltamovie)
+			minimalEventSize = 1;
+		else
+			minimalEventSize = 2;
+				
 	}
 
 	public void InitialSecretionParameters() {
@@ -169,7 +178,7 @@ public class Parameters implements Serializable {
 		
 		useMinimalPointsForFitter = true;
 		useExpandFrames = true;
-		
+		fixedExpand = true;
 		
 		useMaxTauFrames = false;
 		useMinTauFrames = false;
@@ -181,7 +190,7 @@ public class Parameters implements Serializable {
 		useMinDecayFitterR2 = true;
 
 		useGrubbs = true;
-		useGaussienfitter2DR2 = true;
+		useGaussienfitter2DR2 = false;
 
 		minimalPointsForFitter = 5;
 		expand_frames_L = 4;
@@ -211,26 +220,21 @@ public class Parameters implements Serializable {
 		// Vesicle parameters
 
 		this.scaleList = para.scaleList;
-
-
 		this.pixelSize = para.pixelSize;
 		this.timeInterval = para.timeInterval;
 		this.pixelUnit = para.pixelUnit;
 		this.timeUnit = para.timeUnit;
-
 		this.minSize = para.minSize;
 		this.maxSize = para.maxSize;
-		
 		this.SNR_Vesicle = para.SNR_Vesicle;
-
+		
+		this.useTheoreticalResolution = para.useTheoreticalResolution;
+		this.TheoreticalResolution = para.TheoreticalResolution;
+		
 		
 		this.WaveletFilter = para.WaveletFilter;
 		this.lowpass = para.lowpass;
-
-
-
-		
-		
+		//this.deltamovie = para.deltamovie;
 		
 		// Tracking parameters
 
@@ -239,11 +243,12 @@ public class Parameters implements Serializable {
 		this.minimalEventSize = para.minimalEventSize;
 		this.showlist = para.showlist;
 
-		// Secretoion parameters
+		// Secretion parameters
 
 		this.useMinimalPointsForFitter = para.useMinimalPointsForFitter;
 		this.useExpandFrames = para.useExpandFrames;
-
+		this.fixedExpand = para.fixedExpand;
+		
 		this.useMaxTauFrames = para.useMaxTauFrames;
 		this.useMinTauFrames = para.useMinTauFrames;
 		this.useMinSNR = para.useMinSNR;

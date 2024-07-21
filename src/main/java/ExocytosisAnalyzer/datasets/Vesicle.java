@@ -61,10 +61,11 @@ public class Vesicle {
 		int width = is.getWidth();
 		int height = is.getHeight();
 		ImageProcessor slice_of_corrent_vesicle = is.getProcessor(slice).duplicate();
-		// sometimes localmaxia in lowpass image is different form the original image
-		float current_intensity, max_intensity;
+		// sometimes localmaxima in lowpass image is different from the original image
+		float current_intensity, max_intensity,min_intensity;
 		float[] img = (float[]) slice_of_corrent_vesicle.convertToFloatProcessor().getPixels();
 		max_intensity = img[corr_y * width + corr_x];
+		min_intensity = img[corr_y * width + corr_x];
 		for (int j = -radius; j <= radius; j++) {
 			for (int i = -radius; i <= radius; i++) {
 				if ((i * i) + (j * j) <= radius * radius) {
@@ -74,6 +75,8 @@ public class Vesicle {
 						y = corr_y + j;
 						max_intensity = current_intensity;
 					}
+					if (current_intensity < min_intensity)
+						min_intensity = current_intensity;
 				}
 			}
 		}
@@ -108,19 +111,8 @@ public class Vesicle {
 		slice_of_corrent_vesicle.setRoi(roi_x, roi_y, roi_w, roi_h);
 
 		this.vesicleImage = slice_of_corrent_vesicle.crop();
-		float[] pixels = (float[]) vesicleImage.convertToFloatProcessor().getPixels();
-		float max_value = pixels[0];
-		float min_value = pixels[0];
-		for (int i = 1; i < pixels.length; i++) {
-			if (pixels[i] > max_value) {
-				max_value = pixels[i];
-			}
-			if (pixels[i] < min_value) {
-				min_value = pixels[i];
-			}
-		}
-		this.max_Den = (int) max_value;
-		this.min_Den = (int) min_value;
+		this.max_Den = (int) max_intensity;
+		this.min_Den = (int) min_intensity;
 		this.image_height = vesicleImage.getHeight();
 		this.image_width = vesicleImage.getWidth();
 		int index;
@@ -137,6 +129,92 @@ public class Vesicle {
 		}
 	}
 
+	public Vesicle(int aX, int aY, int aRadius, int aSlice, ImageStack is, boolean expend) {
+		
+		int corr_x = aX;
+		int corr_y = aY;
+		x = corr_x;
+		y = corr_y;
+		slice = aSlice;
+		radius = aRadius;
+		int width = is.getWidth();
+		int height = is.getHeight();
+		ImageProcessor slice_of_corrent_vesicle = is.getProcessor(slice).duplicate();
+		// sometimes localmaxima in lowpass image is different from the original image
+		
+	
+		
+		float current_intensity, max_intensity, min_intensity;
+		float[] img = (float[]) slice_of_corrent_vesicle.convertToFloatProcessor().getPixels();
+		max_intensity = img[corr_y * width + corr_x];
+		min_intensity = img[corr_y * width + corr_x];
+		for (int j = -radius; j <= radius; j++) {
+			for (int i = -radius; i <= radius; i++) {
+				if ((i * i) + (j * j) <= radius * radius) {
+					current_intensity = img[(corr_y + j) * width + (corr_x + i)];
+					if (current_intensity > max_intensity) {
+						max_intensity = current_intensity;
+						if (expend == false) {
+							x = corr_x + i;
+							y = corr_y + j;
+						}
+					}
+					if (current_intensity < min_intensity)
+						min_intensity = current_intensity;		
+				}
+			}
+		}
+		
+
+		// make sure to corp minimal 13*13 pixel for a vesicle image
+		int corp_radius;
+		if (radius < 2)
+			corp_radius = 2;
+		else
+			corp_radius = radius + 1;
+
+		// Corp start at:
+		int roi_x = x - 2 * corp_radius;
+		int roi_y = y - 2 * corp_radius;
+		
+		if (roi_x < 0)
+			roi_x = 0;
+		if (roi_y < 0)
+			roi_y = 0;
+		
+		// Corp image size is 4*radius + 1 pixel
+		
+		int roi_w = 4 * corp_radius + 1;
+		int roi_h = 4 * corp_radius + 1;
+		if ((roi_x + roi_w) > width) {
+			roi_x = width - roi_w;
+		}
+		if ((roi_y + roi_h) > height) {
+			roi_y = height - roi_h;
+		}
+
+		slice_of_corrent_vesicle.setRoi(roi_x, roi_y, roi_w, roi_h);
+
+		this.vesicleImage = slice_of_corrent_vesicle.crop();
+		
+		this.max_Den = (int)max_intensity;
+		this.min_Den = (int)min_intensity;
+		this.image_height = vesicleImage.getHeight();
+		this.image_width = vesicleImage.getWidth();
+		int index;
+		this.mask = new double[roi_w * roi_h];
+		for (int j = -corp_radius * 2; j <= corp_radius * 2; j++) {
+			for (int i = -corp_radius * 2; i <= corp_radius * 2; i++) {
+				index = (i + corp_radius * 2) * roi_w + (j + corp_radius * 2);
+				if ((i * i) + (j * j) <= corp_radius * corp_radius * 4) {
+					this.mask[index] = 1;
+				} else {
+					this.mask[index] = 0;
+				}
+			}
+		}
+	}
+	
 	public void setImage(ImageStack is) {
 		int corr_x = this.x;
 		int corr_y = this.y;

@@ -1,5 +1,8 @@
 package ExocytosisAnalyzer.GUI;
 
+import java.text.NumberFormat;
+import java.text.ParseException;
+import java.util.Locale;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
@@ -13,7 +16,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.URL;
-import java.text.DecimalFormat;
 import java.util.Vector;
 
 import javax.swing.BorderFactory;
@@ -46,7 +48,11 @@ public class VesicleParametresWindows extends JPanel {
 	private static final long serialVersionUID = 1L;
 
 	private int image_width, image_height;
-	private DecimalFormat format = new DecimalFormat("#0.000#");
+	//private DecimalFormat format = new DecimalFormat("#0.00#");
+	// Addition from Shengyan Xu
+	Locale locale = Locale.getDefault();
+    private NumberFormat format = NumberFormat.getNumberInstance(locale);
+
 
 	public JTextField IntervalField;
 	public JTextField IntervalUnit;
@@ -76,9 +82,9 @@ public class VesicleParametresWindows extends JPanel {
 
 		detected_vesicles = new Vector<Vesicle>();
 
-		// to simplify the calcule, we fix the unit to "second"
+		// to simplify the calculation, we fix the unit to "second"
 		
-
+	    
 		/*******************************/
 
 		Border titleBorder1 = BorderFactory.createTitledBorder("Set Parameters for Vesicle Detection");
@@ -87,8 +93,8 @@ public class VesicleParametresWindows extends JPanel {
 		JLabel IntervalFieldLabel = new JLabel("Frame time interval:");
 		JLabel framerateLabel = new JLabel("Frame rate:");
 
-		JLabel sizeFieldLabel = new JLabel("Min vesicle apparent size: ");
-		JLabel maxSizeFieldLabel = new JLabel("Max vesicle apparent size: ");
+		JLabel sizeFieldLabel = new JLabel("Min fusion event apparent size: ");
+		JLabel maxSizeFieldLabel = new JLabel("Max fusion event apparent size: ");
 		JLabel SNR_VesicleFieldLabel = new JLabel("Dectection threshold: ");
 		JLabel useWaveletFilterLabel = new JLabel("Use wavelet filter");
 		JLabel showlowpassLabel = new JLabel("Show wavelet lowpass image");
@@ -101,13 +107,15 @@ public class VesicleParametresWindows extends JPanel {
 		lowpass = new JCheckBox("", parameters.lowpass);
 		
 		
-		pixelSiezField = new JTextField(String.valueOf(parameters.pixelSize), 6);
+		//pixelSiezField = new JTextField(String.valueOf(parameters.pixelSize), 6); // HERE
+		pixelSiezField = new JTextField(String.valueOf(format.format(parameters.pixelSize)), 6); // HERE
 		IntervalField = new JTextField(String.valueOf(format.format(parameters.timeInterval)), 6);
 		IntervalUnit = new JTextField(parameters.timeUnit);
 		framerate = new JTextField(String.valueOf(format.format(parameters.framerate)), 6);
 
 		sizeField_pixel = new JTextField(String.valueOf(parameters.minSize), 6);
 		maxSizeField_pixel = new JTextField(String.valueOf(parameters.maxSize), 6);
+		
 		SNR_VesicleField = new JTextField(String.valueOf(format.format(parameters.SNR_Vesicle)), 6);
 
 		pixelSiezUnitField = new JTextField(parameters.pixelUnit);
@@ -120,11 +128,11 @@ public class VesicleParametresWindows extends JPanel {
 		JLabel pixelsizeUnitlable = new JLabel(parameters.pixelUnit);
 
 		JLabel sizeJLabel = new JLabel(" pixels ("
-				+ String.valueOf(format.format(Double.parseDouble(sizeField_pixel.getText()) * parameters.pixelSize))
+				+ String.valueOf(format.format(parameters.minSize * parameters.pixelSize))
 				+ " " + parameters.pixelUnit + ")");
 		JLabel maxSizeJLabel = new JLabel(" pixels ("
 				+ String.valueOf(
-						format.format(Double.parseDouble(maxSizeField_pixel.getText()) * parameters.pixelSize))
+						format.format(parameters.maxSize * parameters.pixelSize))
 				+ " " + parameters.pixelUnit + ")");
 
 		URL sizeImgURL = VesicleParametresWindows.class.getResource("radius.jpg");
@@ -136,8 +144,6 @@ public class VesicleParametresWindows extends JPanel {
 		SNR_VesicleFieldLabel
 				.setToolTipText("<html><img src=" + sensitivityImgURL + " width=\"490\" height=\"434\"> <br></html>");
 
-
-		// thresholdField.setEnabled(false);
 		WaveletFilter.addActionListener(new ActionListener() {
 
 			@Override
@@ -153,15 +159,14 @@ public class VesicleParametresWindows extends JPanel {
 			}
 		});
 		
-
 		pixelSiezField.addKeyListener(new KeyListener() {
 			@Override
 			public void keyTyped(KeyEvent e) {
 				String text = pixelSiezField.getText(); 
 		        char ch = e.getKeyChar(); 
-		        if(!(ch >= '0' && ch <= '9') && ch != '.' && ch != ',') {
+		        if(!(ch >= '0' && ch <= '9') && (ch != '.' && ch != ',')) {
 		            e.consume();
-		        } else if("".equals(text) && ch == '.' && ch != ',') {   
+		        } else if("".equals(text) && (ch == '.' || ch == ',')) {   
 		            e.consume();
 		        } else if(text.contains(".") || text.contains(",") ){
 		            if(ch == '.'||ch == ',' ) {
@@ -169,19 +174,20 @@ public class VesicleParametresWindows extends JPanel {
 		            }
 		        }
 		        try {
-					parameters.pixelSize = Double.parseDouble(pixelSiezField.getText());
+		            Number number = format.parse(pixelSiezField.getText());
+					parameters.pixelSize = number.doubleValue();
 					if (parameters.pixelSize <= 0) {
 						parameters.pixelSize = 1;
 					}
 					sizeJLabel.setText(" pixels ("
 							+ String.valueOf(format
-									.format(Double.parseDouble(sizeField_pixel.getText()) * parameters.pixelSize))
+									.format(parameters.minSize * parameters.pixelSize))
 							+ " " + parameters.pixelUnit + ")");
 					maxSizeJLabel.setText(" pixels ("
 							+ String.valueOf(format
-									.format(Double.parseDouble(maxSizeField_pixel.getText()) * parameters.pixelSize))
+									.format(parameters.maxSize * parameters.pixelSize))
 							+ " " + parameters.pixelUnit + ")");
-				} catch (NumberFormatException arg) {
+				} catch (NumberFormatException | ParseException arg) {
 				}
 			
 			}
@@ -194,19 +200,20 @@ public class VesicleParametresWindows extends JPanel {
 			@Override
 			public void keyReleased(KeyEvent e) {
 				try {
-					parameters.pixelSize = Double.parseDouble(pixelSiezField.getText());
+					Number number = format.parse(pixelSiezField.getText());
+					parameters.pixelSize = number.doubleValue();
 					if (parameters.pixelSize <= 0) {
 						parameters.pixelSize = 1;
 					}
 					sizeJLabel.setText(" pixels ("
 							+ String.valueOf(format
-									.format(Double.parseDouble(sizeField_pixel.getText()) * parameters.pixelSize))
+									.format(parameters.minSize * parameters.pixelSize))
 							+ " " + parameters.pixelUnit + ")");
 					maxSizeJLabel.setText(" pixels ("
 							+ String.valueOf(format
-									.format(Double.parseDouble(maxSizeField_pixel.getText()) * parameters.pixelSize))
+									.format(parameters.maxSize * parameters.pixelSize))
 							+ " " + parameters.pixelUnit + ")");
-				} catch (NumberFormatException arg) {
+				} catch (NumberFormatException | ParseException arg) {
 				}
 			}
 		});
@@ -217,11 +224,11 @@ public class VesicleParametresWindows extends JPanel {
 				parameters.pixelUnit = pixelSiezUnitField.getText();
 				sizeJLabel.setText(" pixels ("
 						+ String.valueOf(
-								format.format(Double.parseDouble(sizeField_pixel.getText()) * parameters.pixelSize))
+								format.format(parameters.minSize * parameters.pixelSize))
 						+ " " + parameters.pixelUnit + ")");
 				maxSizeJLabel.setText(" pixels ("
 						+ String.valueOf(format
-								.format(Double.parseDouble(maxSizeField_pixel.getText()) * parameters.pixelSize))
+								.format(parameters.maxSize * parameters.pixelSize))
 						+ " " + parameters.pixelUnit + ")");
 				pixelsizeUnitlable.setText(" " + pixelSiezUnitField.getText());
 			}
@@ -231,11 +238,11 @@ public class VesicleParametresWindows extends JPanel {
 				parameters.pixelUnit = pixelSiezUnitField.getText();
 				sizeJLabel.setText(" pixels ("
 						+ String.valueOf(
-								format.format(Double.parseDouble(sizeField_pixel.getText()) * parameters.pixelSize))
+								format.format(parameters.minSize * parameters.pixelSize))
 						+ " " + parameters.pixelUnit + ")");
 				maxSizeJLabel.setText(" pixels ("
 						+ String.valueOf(format
-								.format(Double.parseDouble(maxSizeField_pixel.getText()) * parameters.pixelSize))
+								.format(parameters.maxSize* parameters.pixelSize))
 						+ " " + parameters.pixelUnit + ")");
 			}
 
@@ -244,25 +251,24 @@ public class VesicleParametresWindows extends JPanel {
 				parameters.pixelUnit = pixelSiezUnitField.getText();
 				sizeJLabel.setText(" pixels ("
 						+ String.valueOf(
-								format.format(Double.parseDouble(sizeField_pixel.getText()) * parameters.pixelSize))
+								format.format(parameters.minSize * parameters.pixelSize))
 						+ " " + parameters.pixelUnit + ")");
 				maxSizeJLabel.setText(" pixels ("
 						+ String.valueOf(format
-								.format(Double.parseDouble(maxSizeField_pixel.getText()) * parameters.pixelSize))
+								.format(parameters.maxSize * parameters.pixelSize))
 						+ " " + parameters.pixelUnit + ")");
 			}
 		});
 		
-
 		IntervalField.addKeyListener(new KeyListener() {
 
 			@Override
 			public void keyTyped(KeyEvent e) {
 				String text = IntervalField.getText(); 
 		        char ch = e.getKeyChar(); 
-		        if(!(ch >= '0' && ch <= '9') && ch != '.' && ch != ',') {
+		        if(!(ch >= '0' && ch <= '9') && (ch != '.' && ch != ',')) {
 		            e.consume();
-		        } else if("".equals(text) && ch == '.' && ch != ',') {   
+		        } else if("".equals(text) && (ch == '.' || ch == ',')) {   
 		            e.consume();
 		        } else if(text.contains(".") || text.contains(",") ){
 		            if(ch == '.'||ch == ',' ) {
@@ -270,13 +276,15 @@ public class VesicleParametresWindows extends JPanel {
 		            }
 		        }
 		        try {
-					parameters.timeInterval = Double.parseDouble(IntervalField.getText());
+		        	Number number = format.parse(IntervalField.getText());
+		        	parameters.timeInterval =number.doubleValue();
+			
 					if (parameters.timeInterval <= 0) {
 						parameters.timeInterval = 1;
 					}
 					parameters.framerate = 1.00 / parameters.pixelSize;
 					framerate.setText(String.valueOf(format.format(1.00 / parameters.timeInterval)));
-				} catch (NumberFormatException arg) {
+				} catch (NumberFormatException | ParseException arg) {
 
 				}
 			}
@@ -290,13 +298,14 @@ public class VesicleParametresWindows extends JPanel {
 			public void keyReleased(KeyEvent e) {
 
 				try {
-					parameters.timeInterval = Double.parseDouble(IntervalField.getText());
+		        	Number number = format.parse(IntervalField.getText());
+		        	parameters.timeInterval =number.doubleValue();
 					if (parameters.timeInterval <= 0) {
 						parameters.timeInterval = 1;
 					}
 					parameters.framerate = 1.00 / parameters.pixelSize;
 					framerate.setText(String.valueOf(format.format(1.00 / parameters.timeInterval)));
-				} catch (NumberFormatException arg) {
+				} catch (NumberFormatException | ParseException arg) {
 
 				}
 			}
@@ -307,24 +316,24 @@ public class VesicleParametresWindows extends JPanel {
 			public void keyTyped(KeyEvent e) {
 				String text = framerate.getText(); 
 		        char ch = e.getKeyChar(); 
-		        if(!(ch >= '0' && ch <= '9') && ch != '.' && ch != ',') {
+		        if(!(ch >= '0' && ch <= '9') && (ch != '.' && ch != ',')) {
 		            e.consume();
-		        } else if("".equals(text) && ch == '.' && ch != ',') {   
+		        } else if("".equals(text) && (ch == '.' || ch == ',')) {   
 		            e.consume();
 		        } else if(text.contains(".") || text.contains(",") ){
 		            if(ch == '.'||ch == ',' ) {
 		                e.consume();
 		            }
 		        }
-
 				try {
-					parameters.framerate = Double.parseDouble(framerate.getText());
+		        	Number number = format.parse(framerate.getText());
+		        	parameters.framerate =number.doubleValue();
 					if (parameters.framerate <= 0) {
 						parameters.framerate = 1;
 					}
 					parameters.timeInterval = 1.00 / parameters.framerate;
 					IntervalField.setText(String.valueOf(format.format(parameters.timeInterval)));
-				} catch (NumberFormatException arg) {
+				} catch (NumberFormatException | ParseException arg) {
 
 				}
 			}
@@ -337,13 +346,14 @@ public class VesicleParametresWindows extends JPanel {
 			public void keyReleased(KeyEvent e) {
 
 				try {
-					parameters.framerate = Double.parseDouble(framerate.getText());
+					Number number = format.parse(framerate.getText());
+		        	parameters.framerate =number.doubleValue();
 					if (parameters.framerate <= 0) {
 						parameters.framerate = 1;
 					}
 					parameters.timeInterval = 1.00 / parameters.framerate;
 					IntervalField.setText(String.valueOf(format.format(parameters.timeInterval)));
-				} catch (NumberFormatException arg) {
+				} catch (NumberFormatException | ParseException arg) {
 
 				}
 			}
@@ -389,7 +399,7 @@ public class VesicleParametresWindows extends JPanel {
 					parameters.minSize = Integer.parseInt(sizeField_pixel.getText());
 					sizeJLabel.setText(" pixels ("
 							+ String.valueOf(format
-									.format(Double.parseDouble(sizeField_pixel.getText()) * parameters.pixelSize))
+									.format(parameters.minSize * parameters.pixelSize))
 							+ " " + parameters.pixelUnit + ")");
 					
 					
@@ -407,7 +417,7 @@ public class VesicleParametresWindows extends JPanel {
 						parameters.minSize = Integer.parseInt(sizeField_pixel.getText());
 						sizeJLabel.setText(" pixels ("
 							+ String.valueOf(format
-									.format(Double.parseDouble(sizeField_pixel.getText()) * parameters.pixelSize))
+									.format(parameters.minSize * parameters.pixelSize))
 							+ " " + parameters.pixelUnit + ")");
 						if (parameters.minSize < 1) {
 							parameters.minSize = 1;
@@ -436,7 +446,7 @@ public class VesicleParametresWindows extends JPanel {
 					parameters.maxSize = Integer.parseInt(maxSizeField_pixel.getText());
 					maxSizeJLabel.setText(" pixels ("
 							+ String.valueOf(format
-									.format(Double.parseDouble(maxSizeField_pixel.getText()) * parameters.pixelSize))
+									.format(parameters.maxSize* parameters.pixelSize))
 							+ " " + parameters.pixelUnit + ")");
 				} catch (NumberFormatException arg) {
 					maxSizeJLabel.setText(" Invalid number");
@@ -451,7 +461,7 @@ public class VesicleParametresWindows extends JPanel {
 					parameters.maxSize = Integer.parseInt(maxSizeField_pixel.getText());
 					maxSizeJLabel.setText(" pixels ("
 							+ String.valueOf(format
-									.format(Double.parseDouble(maxSizeField_pixel.getText()) * parameters.pixelSize))
+									.format(parameters.maxSize * parameters.pixelSize))
 							+ " " + parameters.pixelUnit + ")");
 					if (parameters.maxSize < parameters.minSize) {
 						parameters.maxSize = parameters.minSize;
@@ -467,25 +477,27 @@ public class VesicleParametresWindows extends JPanel {
 				}
 			}
 		});
-
+		
 		SNR_VesicleField.addKeyListener(new KeyListener() {
 			@Override
 			public void keyTyped(KeyEvent e) {
 				String text = SNR_VesicleField.getText(); 
 		        char ch = e.getKeyChar(); 
-		        if(!(ch >= '0' && ch <= '9') && ch != '.' && ch != ',') {
+		        if(!(ch >= '0' && ch <= '9') && (ch != '.' && ch != ',')) {
 		            e.consume();
-		        } else if("".equals(text) && ch == '.' && ch != ',') {   
+		        } else if("".equals(text) && (ch == '.' || ch == ',')) {   
 		            e.consume();
 		        } else if(text.contains(".") || text.contains(",") ){
 		            if(ch == '.'||ch == ',' ) {
 		                e.consume();
 		            }
 		        }
+		        
 				try {
-					parameters.SNR_Vesicle = Double.parseDouble(SNR_VesicleField.getText());
 
-				} catch (NumberFormatException arg) {
+					Number number = format.parse(SNR_VesicleField.getText());
+		        	parameters.SNR_Vesicle =number.doubleValue();
+				} catch (NumberFormatException | ParseException arg) {
 
 				}
 			}
@@ -495,21 +507,22 @@ public class VesicleParametresWindows extends JPanel {
 			@Override
 			public void keyReleased(KeyEvent e) {
 				try {
-					parameters.SNR_Vesicle = Double.parseDouble(SNR_VesicleField.getText());
-				} catch (NumberFormatException arg) {
+					Number number = format.parse(SNR_VesicleField.getText());
+		        	parameters.SNR_Vesicle =number.doubleValue();
+				} catch (NumberFormatException | ParseException arg) {
 				}
 			}
 
 		});
-
+		
 		TheoreticalResolutionField.addKeyListener(new KeyListener() {
 			@Override
 			public void keyTyped(KeyEvent e) {
 				String text = TheoreticalResolutionField.getText(); 
 		        char ch = e.getKeyChar(); 
-		        if(!(ch >= '0' && ch <= '9') && ch != '.' && ch != ',') {
+		        if(!(ch >= '0' && ch <= '9') && (ch != '.' && ch != ',')) {
 		            e.consume();
-		        } else if("".equals(text) && ch == '.' && ch != ',') {   
+		        } else if("".equals(text) && (ch == '.' || ch == ',')) {   
 		            e.consume();
 		        } else if(text.contains(".") || text.contains(",") ){
 		            if(ch == '.'||ch == ',' ) {
@@ -517,11 +530,13 @@ public class VesicleParametresWindows extends JPanel {
 		            }
 		        }
 				try {
-					parameters.TheoreticalResolution = Double.parseDouble(TheoreticalResolutionField.getText());
+					Number number = format.parse(TheoreticalResolutionField.getText());
+		        	parameters.TheoreticalResolution =number.doubleValue();
 
-				} catch (NumberFormatException arg) {
-
+				} catch (NumberFormatException | ParseException arg) {
+					
 				}
+
 			}
 			@Override
 			public void keyPressed(KeyEvent e) {
@@ -529,14 +544,14 @@ public class VesicleParametresWindows extends JPanel {
 			@Override
 			public void keyReleased(KeyEvent e) {
 				try {
-					parameters.TheoreticalResolution = Double.parseDouble(TheoreticalResolutionField.getText());
-				} catch (NumberFormatException arg) {
+					Number number = format.parse(TheoreticalResolutionField.getText());
+		        	parameters.TheoreticalResolution =number.doubleValue();
+				} catch (NumberFormatException | ParseException arg) {
 				}
 			}
 
 		});
-		
-		
+			
 		TheoreticalResolutionCbox.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -550,9 +565,6 @@ public class VesicleParametresWindows extends JPanel {
 				}
 			}
 		});
-
-		
-		
 		
 		WaveletFilter.addActionListener(new ActionListener() {
 			@Override
@@ -581,8 +593,6 @@ public class VesicleParametresWindows extends JPanel {
 					parameters.lowpass = false;
 			}
 		});
-
-		
 
 		JPanel ParametresPanel1 = new JPanel();
 		ParametresPanel1.setBorder(titleBorder1);
@@ -659,7 +669,6 @@ public class VesicleParametresWindows extends JPanel {
 
 			}
 		});
-
 		loadButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -692,7 +701,11 @@ public class VesicleParametresWindows extends JPanel {
 				sizeField_pixel.setText(String.valueOf(parameters.minSize));
 				maxSizeField_pixel.setText(String.valueOf(parameters.maxSize));
 				SNR_VesicleField.setText(String.valueOf(parameters.SNR_Vesicle));
-
+				TheoreticalResolutionField.setText(String.valueOf(format.format(parameters.TheoreticalResolution)));
+				TheoreticalResolutionField.setEnabled(parameters.useTheoreticalResolution);
+				TheoreticalResolutionCbox.setSelected(parameters.useTheoreticalResolution);
+				
+				
 				WaveletFilter.setSelected(parameters.WaveletFilter);
 				lowpass.setSelected(parameters.lowpass);
 				if (WaveletFilter.isSelected()) {
@@ -720,7 +733,9 @@ public class VesicleParametresWindows extends JPanel {
 				sizeField_pixel.setText(String.valueOf(parameters.minSize));
 				maxSizeField_pixel.setText(String.valueOf(parameters.maxSize));
 				SNR_VesicleField.setText(String.valueOf(parameters.SNR_Vesicle));
-				
+				TheoreticalResolutionField.setText(String.valueOf(format.format(parameters.TheoreticalResolution)));
+				TheoreticalResolutionField.setEnabled(parameters.useTheoreticalResolution);
+				TheoreticalResolutionCbox.setSelected(parameters.useTheoreticalResolution);
 
 				WaveletFilter.setSelected(parameters.WaveletFilter);
 				lowpass.setSelected(parameters.lowpass);
@@ -770,7 +785,9 @@ public class VesicleParametresWindows extends JPanel {
 				for (int slice = 1; slice <= num_of_slices; slice++) {
 					lowPass = waveletFilter.filter(in.getStack().getProcessor(slice));
 					preview_detected_vesicle = myDetector.FindLocalMaxima(lowPass, slice, 1);
-					LowPassStack.addSlice(new FloatProcessor(image_width, image_height, lowPass));
+					FloatProcessor fp = new FloatProcessor(image_width, image_height, lowPass);
+					fp.invertLut();
+					LowPassStack.addSlice(fp);
 
 				}
 				ImagePlus lowPassImage = new ImagePlus();

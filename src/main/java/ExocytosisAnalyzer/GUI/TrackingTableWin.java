@@ -1,5 +1,7 @@
 package ExocytosisAnalyzer.GUI;
 
+import java.text.NumberFormat;
+import java.util.Locale;
 import java.awt.BorderLayout;
 import java.awt.Button;
 import java.awt.Color;
@@ -86,14 +88,15 @@ public class TrackingTableWin extends JFrame {
 	private int MontageZoom, MontageCol, MontageGap;
 	private boolean MontageLabel;
 
-	private DecimalFormat format = new DecimalFormat("#0.000#");
+	//private DecimalFormat format = new DecimalFormat("#0.000#");
+	Locale locale = Locale.getDefault();
+    private NumberFormat format = NumberFormat.getNumberInstance(locale);
 	// public VesicleParametres v_paras; // detection parameters for vesicles
 	// public SecretionParameters s_paras; // detection parameters for secretion
 	public Vector<Secretion> detected_secretions;
 	private Secretion selectedSecretion;
 
 	private String[] columnTitleExocytosis;
-	private String[] columnTitleVesicle;
 
 	public TrackingTableWin(ImagePlus imp, ResultStackWindow preview_win, Vector<Secretion> input_secretions,
 
@@ -122,14 +125,14 @@ public class TrackingTableWin extends JFrame {
 		// Initial Table
 
 		columnTitleExocytosis = new String[] { 
-				"Ref", // 1
-				"Begin Frame", // 2
-				"Duration", // 3
-				"Position (x,y)", // 4
-				"Max. Displacement (pixels)", // 5
-				"dF/σ (MAD)", // 6
-				"F0", // 7
-				"ΔF" //8
+				"Ref ", // 1
+				"Begin Frame ", // 2
+				"Duration ", // 3
+				"Position (x,y) ", // 4
+				"Max. Displacement (pixels) ", // 5
+				"dF/σ (MAD) ", // 6
+				"F0 ", // 7
+				"ΔF " //8
 		};
 
 
@@ -623,7 +626,7 @@ public class TrackingTableWin extends JFrame {
 
 		// Initial Window "resultWindows"
 		JScrollPane resutWinTablePanel = new JScrollPane(secretionEventList);
-		resutWinTablePanel.setSize(new Dimension(1000, 500));
+		resutWinTablePanel.setSize(new Dimension(800, 500));
 
 		JPanel resutWinButtonPanel_TOP = new JPanel();
 		JPanel resutWinButtonPanel_BOTTOM = new JPanel();
@@ -648,7 +651,7 @@ public class TrackingTableWin extends JFrame {
 
 		JLabel addSecetionHelp = new JLabel("Set a ROI over the missing event in the result movie window to add it");
 
-		resutWinButtonPanel_TOP.setSize(new Dimension(600, 100));
+		resutWinButtonPanel_TOP.setSize(new Dimension(800, 100));
 		resutWinButtonPanel_TOP.setLayout(new FlowLayout());
 		resutWinButtonPanel_TOP.add(viewCruvePlotButton);
 		resutWinButtonPanel_TOP.add(viewdFPlotButton);
@@ -660,10 +663,10 @@ public class TrackingTableWin extends JFrame {
 		//resutWinButtonPanel_TOP.add(viewRadiusHisBtn);
 		//resutWinButtonPanel_TOP.add(viewTauHisBtn);
 
-		resutWinButtonPanel_Infos.setSize(new Dimension(600, 100));
+		resutWinButtonPanel_Infos.setSize(new Dimension(800, 100));
 		resutWinButtonPanel_Infos.add(totalEvent);
 
-		resutWinButtonPanel_BottomButton.setSize(new Dimension(600, 100));
+		resutWinButtonPanel_BottomButton.setSize(new Dimension(800, 100));
 		resutWinButtonPanel_BottomButton.setLayout(new FlowLayout(FlowLayout.LEFT));
 		resutWinButtonPanel_BottomButton.add(addSecetionHelp);
 		resutWinButtonPanel_BottomButton.add(AddButton);
@@ -1195,6 +1198,9 @@ public class TrackingTableWin extends JFrame {
 
 		result_dtmS = new DefaultTableModel(tableData, columnTitleExocytosis);
 		secretionEventList.setModel(result_dtmS);
+		FitTableColumns(secretionEventList);
+		secretionEventList.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+		secretionEventList.getTableHeader().setReorderingAllowed(false);
 		secretionEventList.validate();
 		secretionEventList.updateUI();
 		secretionEventList.changeSelection(selectedTableRow, 0, false, false);
@@ -1259,8 +1265,6 @@ public class TrackingTableWin extends JFrame {
 
     }
 
-
-	
 	public class comparator_Ref implements Comparator<Object> {
 		public int compare(Object o1, Object o2) {
 			Secretion s1 = (Secretion) o1;

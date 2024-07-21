@@ -4,40 +4,96 @@ import ij.ImagePlus;
 
 public class DeltaMovie {
 
-    public static void getDeltaMovie(ImagePlus imp) {
-        ImagePlus in = imp.duplicate();
+    public static ImagePlus getDeltaMovie(ImagePlus imp) {
+        ImagePlus out = imp.duplicate();
 		int num_of_slices = imp.getStackSize();
 
 		
-		double max = 0; // JunJun version for display scaling
-		double min = 0; // JunJun version for display scaling
-		
-		
-      
+		int max = 0; // JunJun version for display scaling
+		int min = 0; // JunJun version for display scaling
 
         // Process the first slice separately
-		short[] previous = (short[]) in.getStack().getProcessor(1).getPixels();
-		short[] current = (short[]) in.getStack().getProcessor(1).getPixels();
-		short[] pixels = (short[]) imp.getStack().getProcessor(1).getPixels();
-        for (int i = 0; i < current.length; i++){
-        	pixels[i] =  (short) Math.abs(current[i] - previous[i]);
-		}
-  
+		short[] previous = (short[]) out.getStack().getProcessor(1).getPixels();
+		short[] current = (short[]) out.getStack().getProcessor(1).getPixels();
+		
+		short[][] pixels = new short[num_of_slices][current.length];
+
+        for (int i = 0; i < pixels[0].length; i++){
+        	pixels[0][i] = 0;
+        }
+				
+				
         for (int n = 2; n <= num_of_slices; n++) {
-        	previous = (short[]) in.getStack().getProcessor(n-1).getPixels();
-        	current = (short[]) in.getStack().getProcessor(n).getPixels();
-        	pixels = (short[]) imp.getStack().getProcessor(n).getPixels();
-            // Calculate absolute difference (and not subtract because of probable negative values)
+        	previous = (short[]) out.getStack().getProcessor(n-1).getPixels();
+        	current = (short[]) out.getStack().getProcessor(n).getPixels();
 			for (int i = 0; i < current.length; i++){
-				pixels[i] = (short) Math.abs(current[i] - previous[i]);
-				if (pixels[i] > max) max = pixels[i];
-				//if (current[i] < min) min = current[i];
+				pixels[n-1][i] = (short) (current[i] - previous[i]);
+				if (pixels[n-1][i] > max) max = pixels[n-1][i];
+				if (pixels[n-1][i] < min) min = pixels[n-1][i];
 			}
 
         }
-       	
-        // automatic scaling display: out.setDisplayRange(0, out.getStatistics().max);
-        imp.setDisplayRange(min,max); // JunJun version  
+        if (min < 0) {
+        	min = Math.abs(min);
+        	max = max+min;
+            for (int n = 0; n < pixels.length; n++) {
+                for (int i = 0; i < pixels[n].length; i++) {
+                	pixels[n][i] += min;
+                }
+            }
+        }
+		for (int n = 1; n <= num_of_slices; n++) {
+
+			short[] intensity = (short[]) out.getStack().getProcessor(n).getPixels();
+			
+				for (int i = 0; i < intensity.length; i++){
+					intensity[i] = (short)pixels[n-1][i] ;
+				}
+		}
+		out.setDisplayRange(0,max); 
+		out.setTitle("dF movie");
+        return out;
+
+    }
+    public static ImagePlus getAbsDeltaMovie(ImagePlus imp) {
+        ImagePlus out = imp.duplicate();
+		int num_of_slices = imp.getStackSize();
+
+		
+		int max = 0; // JunJun version for display scaling
+
+        // Process the first slice separately
+		short[] previous = (short[]) out.getStack().getProcessor(1).getPixels();
+		short[] current = (short[]) out.getStack().getProcessor(1).getPixels();
+		
+		short[][] pixels = new short[num_of_slices][current.length];
+
+        for (int i = 0; i < pixels[0].length; i++){
+        	pixels[0][i] = 0;
+        }
+				
+				
+        for (int n = 2; n <= num_of_slices; n++) {
+        	previous = (short[]) out.getStack().getProcessor(n-1).getPixels();
+        	current = (short[]) out.getStack().getProcessor(n).getPixels();
+			for (int i = 0; i < current.length; i++){
+				pixels[n-1][i] = (short) (current[i] - previous[i]);
+				if (pixels[n-1][i] > max) max = pixels[n-1][i];
+			}
+
+        }
+
+		for (int n = 1; n <= num_of_slices; n++) {
+
+			short[] intensity = (short[]) out.getStack().getProcessor(n).getPixels();
+			
+				for (int i = 0; i < intensity.length; i++){
+					intensity[i] = (short)Math.abs( pixels[n-1][i] );
+				}
+		}
+		out.setDisplayRange(0,max); 
+		out.setTitle("dF movie");
+        return out;
 
     }
 }

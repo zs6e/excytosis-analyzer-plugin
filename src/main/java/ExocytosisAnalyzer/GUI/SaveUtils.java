@@ -35,14 +35,15 @@ public class SaveUtils {
 				"Position (x)",
 				"Position (y)", // 6
 				"Max. Displacement (pixels)", // 7
-				"Est. Size (FWHM " + parameter.pixelUnit + ")", // 8
-				"R Square for Est. Size", // 9
-				"Tau (" + parameter.timeUnit + ")", // 10
-				"R Square for Decay Est.", // 11
-				"dF/Sigma (MAD)", // 12
-				"Decay Function", // 13
-				"F0",
-				"Delta F"
+				"Tau (" + parameter.timeUnit + ")", // 8
+				"R Square for Decay Est.", // 9
+				"dF/Sigma (MAD)", // 10
+				"Decay Function", // 11
+				"F0",//13
+				"Delta F",//14
+				"R Square Gaussian fit",//15
+				"Est. Size (FWHM " + parameter.pixelUnit + ")" // 16
+
 		};
 
 		for(String title : columnTitle){
@@ -64,14 +65,15 @@ public class SaveUtils {
 					String.valueOf(s.getStartX()) +sep+
 					String.valueOf(s.getStartY()) +sep+
 					String.valueOf(s.getMaxDisplacement()) +sep+
-					String.valueOf(s.getEstimatedPeakSize2D() * parameter.pixelSize) +sep+
-					String.valueOf(s.getPeakGaussfitterRsquare2D()) +sep+
+
 					String.valueOf(s.Decay_tau * parameter.timeInterval) +sep+
 					String.valueOf(s.Decay_R2) +sep+
 					String.valueOf(s.getSNR()) +sep+				
 					"y=" + s.Decay_bk + "+" + s.Decay_peak + "*" + "exp(-x/" + s.Decay_tau * parameter.timeInterval + ")" +sep+
 					String.valueOf(s.getF_zero()) +sep+
-					String.valueOf(s.getMax()-s.getF_zero())
+					String.valueOf(s.getMax()-s.getF_zero())+sep+
+					String.valueOf(s.getPeakGaussfitterRsquare2D())  +sep+
+					String.valueOf(s.getEstimatedPeakSize2D() * parameter.pixelSize)
 					);
 			osw.write("\r\n");
 		}
@@ -145,14 +147,14 @@ public class SaveUtils {
 		OutputStreamWriter osw = new OutputStreamWriter(new FileOutputStream(file), "Unicode");
 		
 		String[] columnTitle = new String[] { 
-				"Ref", // 1
-				"Property", // 2
-				"Frame", // 3
-				"Intensity", // 4
-				"x", // 5
-				"y", // 6
-				"Apparent Size (FWHM " + parameter.pixelUnit + ")", // 7
-				"R²" // 8
+				"Ref", // 0
+				"Property", // 1
+				"Frame", // 2
+				"Intensity", // 3
+				"x", // 4
+				"y", // 5
+				"R² for Gaussian fit" ,// 6
+				"Apparent Size (FWHM " + parameter.pixelUnit + ")" // 7
 		};
 		
 		for(String title : columnTitle){
@@ -171,8 +173,8 @@ public class SaveUtils {
 					String.valueOf(v.getMaxDen()) +sep+ 
 					String.valueOf(v.x) +sep+ 
 					String.valueOf(v.y) +sep+
-					String.valueOf(v.EstimateSize2D() * parameter.pixelSize) +sep+ 
-					String.valueOf(v.get2DFitRsqr())
+					String.valueOf(v.get2DFitRsqr())+sep+ 
+					String.valueOf(v.EstimateSize2D() * parameter.pixelSize) 
 					);
 			osw.write("\r\n");
 			i++;
@@ -259,8 +261,8 @@ public class SaveUtils {
 						String.valueOf(v.getMaxDen()) +sep+ 
 						String.valueOf(v.x) +sep+ 
 						String.valueOf(v.y) +sep+
-						String.valueOf(v.EstimateSize2D() * parameter.pixelSize) +sep+ 
-						String.valueOf(v.get2DFitRsqr())
+						String.valueOf(v.get2DFitRsqr()) +sep+ 
+						String.valueOf(v.EstimateSize2D() * parameter.pixelSize)
 						);
 				osw.write("\r\n");
 				i++;

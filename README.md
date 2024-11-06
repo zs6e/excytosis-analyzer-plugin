@@ -1,5 +1,5 @@
-# excytosis-analyzer-plugin
-    ExoJ is an Image/Fiji plugin to automate the detection and the analysis of exocytosis in fluorescent time series
+# exocytosis-analyzer-plugin
+    ExoJ is a Fiji/ImageJ2 plugin to automate the detection and the analysis of exocytosis in fluorescent time series
     Please visit our website for more details
     
     <https://www.project-exoj.com/>

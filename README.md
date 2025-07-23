@@ -4,6 +4,11 @@
     Our website (<https://www.project-exoj.com/>) is experiencing some instabilities.
     You can also find the latest version of our plugin (v1.84).
     Make sure to visit us from time to time for the latest updates.
+
+    For more information: 
+    https://journals.biologists.com/jcs/article/137/20/jcs261938/362479/ExoJ-a-Fiji-ImageJ2-plugin-for-automated
+
+
     
     Copyright (C) 2022 - LIU Junjun, BUN Philippe
 

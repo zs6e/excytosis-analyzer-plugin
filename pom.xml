@@ -13,7 +13,7 @@
 
 	<groupId>imagej</groupId>
 	<artifactId>ExocytosisAnalyzer</artifactId>
-	<version>V1.151 </version>
+	<version>V1.84 </version>
 
 	<name>ImageJ ExcytosisAnalyzer</name>
 	<description>a ImageJ commands.</description>
@@ -95,7 +95,7 @@
 		<dependency>
 			<groupId>net.imagej</groupId>
 			<artifactId>ij</artifactId>
-			<version>1.54d</version>
+			<version>1.54p</version>
 		</dependency>
 		<dependency>
 			<groupId>net.imagej</groupId>

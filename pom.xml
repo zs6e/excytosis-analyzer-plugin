@@ -13,24 +13,16 @@
 
 	<groupId>imagej</groupId>
 	<artifactId>ExocytosisAnalyzer</artifactId>
-	<version>V1.84 </version>
+	<version>v1.9</version>
 
-	<name>ImageJ ExcytosisAnalyzer</name>
-	<description>a ImageJ commands.</description>
+	<name>ImageJ ExocytosisAnalyzer</name>
+	<description>Plugin to automate the detection and analysis of exocytosis event</description>
 	<url>https://github.com/zs6e/excytosis-analyzer-plugin</url>
-	<inceptionYear>2022</inceptionYear>
+	<inceptionYear>2025</inceptionYear>
 	<organization>
 		<name>SFMS</name>
 		<url>[MY-ORGANIZATION-WEB-SITE]</url>
 	</organization>
-	<licenses>
-		<license>
-			<name>CC0 1.0 Universal License</name>
-			<url>http://creativecommons.org/publicdomain/zero/1.0/</url>
-			<distribution>repo</distribution>
-		</license>
-	</licenses>
-
 	<developers>
 		<developer>
 			<id>[MY-GITHUB-ID]</id>
@@ -40,37 +32,18 @@
 	</developers>
 	<contributors>
 		<contributor>
-			<name>None</name>
+			<name>Junjun LIU</name>
+			<name>Philippe BUN</name>
 		</contributor>
 	</contributors>
-
-	<mailingLists>
-		<mailingList>
-			<name>ImageJ Forum</name>
-			<archive>http://forum.imagej.net/</archive>
-		</mailingList>
-	</mailingLists>
-
-	<scm>
-		<connection>scm:git:git://github.com/[MY-ORG]/[MY-REPO]</connection>
-		<developerConnection>scm:git:git@github.com:[MY-ORG]/[MY-REPO]</developerConnection>
-		<tag>HEAD</tag>
-		<url>https://github.com/[MY-ORG]/[MY-REPO]</url>
-	</scm>
-	<issueManagement>
-		<system>GitHub Issues</system>
-		<url>https://github.com/scijava/pom-scijava/issues</url>
-	</issueManagement>
-	<ciManagement>
-		<system>None</system>
-	</ciManagement>
-
 	<properties>
 		<main-class>Exocytosis_analyzer</main-class>
-		<license.licenseName>cc0</license.licenseName>
-		<license.copyrightOwners>N/A</license.copyrightOwners>
-		<license.projectName>ImageJ software for multidimensional image
-			processing and analysis.</license.projectName>
+		<licenses>
+			<license>
+			<name>GNU General Public License v3.0 or later</name>
+			<url>https://www.gnu.org/licenses/gpl-3.0.en.html</url>
+			</license>
+		</licenses>
 	</properties>
 
 	<repositories>
@@ -91,11 +64,17 @@
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-math3</artifactId>
+			<version>3.6.1</version>
 		</dependency>
 		<dependency>
 			<groupId>net.imagej</groupId>
 			<artifactId>ij</artifactId>
 			<version>1.54p</version>
+		</dependency>
+		<dependency>
+			<groupId>com.miglayout</groupId>
+			<artifactId>miglayout-swing</artifactId>
+			<version>5.2</version>
 		</dependency>
 		<dependency>
 			<groupId>net.imagej</groupId>

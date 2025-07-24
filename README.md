@@ -3,9 +3,9 @@
     
     Our website (<https://www.project-exoj.com/>) is experiencing some instabilities.
     
-    You can find the latest version of our plugin (v1.84):
-        * Code was modified to enable multithreading processing (this should speed up the event identification)
-    Make sure to visit us from time to time for the latest updates (v1.9 coming up soon)
+    You can find the two latest versions of our plugin (v1.83 and v1.9):
+        * Legacy version: v1.83
+        * Version 1.9: Code was modified to enable multithreading process (this should significantly speed up the detection and analysis)
 
     For more information: 
     Liu et al., 2024 --> https://doi.org/10.1242/jcs.261938
